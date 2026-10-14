@@ -1,3 +1,15 @@
+## v1.0.2
+
+- Publish an update to validate upgrading from v1.0.1.
+
+---
+
+## v1.0.1
+
+- Switch application updates to mobcoding/ClashX releases.
+
+---
+
 ## v2.5.9
 
 <details>

@@ -4,7 +4,6 @@ import { resolveUpdateLog } from './updatelog.mjs'
 
 const UPDATE_TAG_NAME = 'updater'
 const UPDATE_JSON_FILE = 'update-fixed-webview2.json'
-const UPDATE_JSON_PROXY = 'update-fixed-webview2-proxy.json'
 
 async function resolveUpdater() {
   if (process.env.GITHUB_TOKEN === undefined) {
@@ -73,16 +72,6 @@ async function resolveUpdater() {
     }
   })
 
-  const updateDataNew = JSON.parse(JSON.stringify(updateData))
-
-  Object.entries(updateDataNew.platforms).forEach(([key, value]) => {
-    if (value.url) {
-      updateDataNew.platforms[key].url = 'https://update.hwdns.net/' + value.url
-    } else {
-      console.log(`[Error]: updateDataNew.platforms.${key} is null`)
-    }
-  })
-
   const { data: updateRelease } = await github.rest.repos.getReleaseByTag({
     ...options,
     tag: UPDATE_TAG_NAME,
@@ -95,12 +84,6 @@ async function resolveUpdater() {
         asset_id: asset.id,
       })
     }
-
-    if (asset.name === UPDATE_JSON_PROXY) {
-      await github.rest.repos
-        .deleteReleaseAsset({ ...options, asset_id: asset.id })
-        .catch(console.error) // do not break the pipeline
-    }
   }
 
   await github.rest.repos.uploadReleaseAsset({
@@ -108,13 +91,6 @@ async function resolveUpdater() {
     release_id: updateRelease.id,
     name: UPDATE_JSON_FILE,
     data: JSON.stringify(updateData, null, 2),
-  })
-
-  await github.rest.repos.uploadReleaseAsset({
-    ...options,
-    release_id: updateRelease.id,
-    name: UPDATE_JSON_PROXY,
-    data: JSON.stringify(updateDataNew, null, 2),
   })
 }
 

@@ -4,10 +4,8 @@ import { resolveUpdateLog, resolveUpdateLogDefault } from './updatelog.mjs'
 
 const UPDATE_TAG_NAME = 'updater'
 const UPDATE_JSON_FILE = 'update.json'
-const UPDATE_JSON_PROXY = 'update-proxy.json'
 const ALPHA_TAG_NAME = 'updater-alpha'
 const ALPHA_UPDATE_JSON_FILE = 'update.json'
-const ALPHA_UPDATE_JSON_PROXY = 'update-proxy.json'
 
 async function resolveUpdater() {
   if (process.env.GITHUB_TOKEN === undefined) {
@@ -255,17 +253,6 @@ async function processRelease(github, options, tag, isAlpha) {
       }
     })
 
-    const updateDataNew = JSON.parse(JSON.stringify(updateData))
-
-    Object.entries(updateDataNew.platforms).forEach(([key, value]) => {
-      if (value.url) {
-        updateDataNew.platforms[key].url =
-          `https://update.hwdns.net/${value.url}`
-      } else {
-        console.log(`[Error]: updateDataNew.platforms.${key} is null`)
-      }
-    })
-
     const releaseTag = isAlpha ? ALPHA_TAG_NAME : UPDATE_TAG_NAME
     console.log(
       `Processing ${isAlpha ? 'alpha' : 'stable'} release:`,
@@ -308,7 +295,6 @@ async function processRelease(github, options, tag, isAlpha) {
       }
 
       const jsonFile = isAlpha ? ALPHA_UPDATE_JSON_FILE : UPDATE_JSON_FILE
-      const proxyFile = isAlpha ? ALPHA_UPDATE_JSON_PROXY : UPDATE_JSON_PROXY
 
       for (const asset of updateRelease.assets) {
         if (asset.name === jsonFile) {
@@ -317,12 +303,6 @@ async function processRelease(github, options, tag, isAlpha) {
             asset_id: asset.id,
           })
         }
-
-        if (asset.name === proxyFile) {
-          await github.rest.repos
-            .deleteReleaseAsset({ ...options, asset_id: asset.id })
-            .catch(console.error) // do not break the pipeline
-        }
       }
 
       await github.rest.repos.uploadReleaseAsset({
@@ -330,13 +310,6 @@ async function processRelease(github, options, tag, isAlpha) {
         release_id: updateRelease.id,
         name: jsonFile,
         data: JSON.stringify(updateData, null, 2),
-      })
-
-      await github.rest.repos.uploadReleaseAsset({
-        ...options,
-        release_id: updateRelease.id,
-        name: proxyFile,
-        data: JSON.stringify(updateDataNew, null, 2),
       })
 
       console.log(
