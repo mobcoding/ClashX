@@ -286,10 +286,6 @@ export async function getEmbeddedServerPort() {
   return commands.getEmbeddedServerPort()
 }
 
-export async function changeClashCore(clashCore: string) {
-  return commands.changeClashCore(clashCore)
-}
-
 export async function restartCore() {
   return commands.restartCore()
 }

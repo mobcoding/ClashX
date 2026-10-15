@@ -203,13 +203,12 @@ fn version_lte(a: &str, b: &str) -> bool {
     true // equal
 }
 
-/// Maps UI language to one of the three NSIS translations, defaulting to English.
+/// Maps UI language to an NSIS translation, defaulting to English.
 #[cfg(target_os = "windows")]
 fn nsis_language_id(app_language: &str) -> &'static str {
     match app_language {
-        "zh" | "zhtw" => "2052", // SimpChinese
-        "ru" => "1049",          // Russian
-        _ => "1033",             // English
+        "zh" => "2052", // SimpChinese
+        _ => "1033",    // English
     }
 }
 

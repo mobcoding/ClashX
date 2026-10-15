@@ -21,7 +21,7 @@ export const MiscViewer = forwardRef<DialogRef>((props, ref) => {
 
   const [open, setOpen] = useState(false)
   const [values, setValues] = useState({
-    appLogLevel: 'warn',
+    appLogLevel: 'silent',
     appLogMaxSize: 8,
     appLogMaxCount: 12,
     autoCloseConnection: true,
@@ -39,7 +39,7 @@ export const MiscViewer = forwardRef<DialogRef>((props, ref) => {
     open: () => {
       setOpen(true)
       setValues({
-        appLogLevel: verge?.app_log_level ?? 'warn',
+        appLogLevel: verge?.app_log_level ?? 'silent',
         appLogMaxSize: verge?.app_log_max_size ?? 128,
         appLogMaxCount: verge?.app_log_max_count ?? 8,
         autoCloseConnection: verge?.auto_close_connection ?? true,

@@ -1,5 +1,9 @@
 ## v1.0.2
 
+- Disable application and core logging by default while keeping log levels configurable.
+- Bundle only the stable Mihomo core and migrate preview-core selections automatically.
+
+- Limit application and installer languages to Simplified Chinese and English.
 - Publish an update to validate upgrading from v1.0.1.
 
 ---

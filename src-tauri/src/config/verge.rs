@@ -265,7 +265,7 @@ pub struct IVergeTheme {
 }
 
 impl IVerge {
-    pub const VALID_CLASH_CORES: &'static [&'static str] = &["verge-mihomo", "verge-mihomo-alpha"];
+    pub const VALID_CLASH_CORES: &'static [&'static str] = &["verge-mihomo"];
 
     pub async fn validate_and_fix_config() -> Result<()> {
         let config_path = dirs::verge_path()?;
@@ -327,7 +327,11 @@ impl IVerge {
     }
 
     pub fn get_valid_clash_core(&self) -> String {
-        self.clash_core.clone().unwrap_or_else(|| "verge-mihomo".into())
+        self.clash_core
+            .as_ref()
+            .filter(|core| Self::VALID_CLASH_CORES.contains(&core.as_str()))
+            .cloned()
+            .unwrap_or_else(|| "verge-mihomo".into())
     }
 
     pub async fn new() -> Self {
@@ -355,6 +359,7 @@ impl IVerge {
 
     pub fn template() -> Self {
         Self {
+            app_log_level: Some("silent".into()),
             app_log_max_size: Some(128),
             app_log_max_count: Some(8),
             clash_core: Some("verge-mihomo".into()),
@@ -535,10 +540,10 @@ impl IVerge {
                 "info" => LevelFilter::Info,
                 "debug" => LevelFilter::Debug,
                 "trace" => LevelFilter::Trace,
-                _ => LevelFilter::Info,
+                _ => LevelFilter::Off,
             }
         } else {
-            LevelFilter::Info
+            LevelFilter::Off
         }
     }
 }
