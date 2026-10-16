@@ -15,7 +15,6 @@
 .base-page .base-container > section { padding: 0 0 24px; }
 .base-page .base-container > section .base-content { width: auto; margin: 0 32px; max-width: 1100px; }
 .base-page .base-container.no-padding > section .base-content { width: 100%; margin: 0; max-width: none; }
-.page-description.MuiTypography-root { color: var(--mui-palette-text-secondary, inherit); font-size: 13px; opacity: .65; margin: 0 0 24px; }
 .clashx-panel { background: var(--surface-color); border: 1px solid var(--divider-color); border-radius: 12px; padding: 22px; margin-bottom: 20px; }
 .overview-current-proxy .enhanced-card { border: 0; background: transparent; }
 .overview-current-proxy .enhanced-card > div:first-child { border-bottom: 0; padding: 6px 0; }
@@ -53,7 +52,7 @@
 
 .layout .layout-content .layout-content__left .the-logo { flex: 0 0 84px; height: 84px; margin: 0; padding: 8px 12px 24px; }
 .layout .layout-content__left .the-menu .MuiListItemButton-root { border-radius: 9px; }
-.subscriptions-page { height: 100%; box-sizing: border-box; padding: 0 32px 24px; }
+.subscriptions-page { height: 100%; box-sizing: border-box; padding: 0 32px 24px; display: flex; flex-direction: column; }
 .subscription-tools { position: relative; font-size: 12px; }
 .subscription-tools > summary { cursor: pointer; padding: 8px; color: inherit; display: flex; align-items: center; justify-content: center; border-radius: 7px; list-style: none; }
 .subscription-tools > summary::-webkit-details-marker { display: none; }

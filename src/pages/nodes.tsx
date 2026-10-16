@@ -111,9 +111,6 @@ const NodesPage = () => {
       contentStyle={{ height: '100%' }}
     >
       <Box className="nodes-page">
-        <Typography className="page-description">
-          {t('layout.redesign.nodesDescription')}
-        </Typography>
         <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
           <TextField
             fullWidth

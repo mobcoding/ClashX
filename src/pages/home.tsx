@@ -41,9 +41,6 @@ const HomePage = () => {
       : undefined
   return (
     <BasePage title={t('layout.components.navigation.tabs.home')}>
-      <Typography className="page-description">
-        {t('layout.redesign.overviewDescription')}
-      </Typography>
       <Box className="clashx-panel overview-connection">
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Box

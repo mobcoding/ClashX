@@ -29,7 +29,6 @@ import {
   Grid,
   IconButton,
   Stack,
-  Typography,
 } from '@mui/material'
 import { getCurrentWindow } from '@tauri-apps/api/window'
 import { readText } from '@tauri-apps/plugin-clipboard-manager'
@@ -838,18 +837,14 @@ const ProfilePage = () => {
       }
     >
       <Box className="subscriptions-page">
-        <Typography className="page-description">
-          {t('layout.redesign.subscriptionDescription')}
-        </Typography>
         {importOpen && (
           <Stack
             direction="row"
             spacing={1}
             sx={{
-              pt: 1,
-              mb: 0.5,
-              mx: '10px',
-              height: '36px',
+              mb: 2,
+              minHeight: '36px',
+              flexShrink: 0,
               display: 'flex',
               alignItems: 'center',
             }}
@@ -918,7 +913,8 @@ const ProfilePage = () => {
         <Box
           sx={{
             px: 0,
-            height: importOpen ? 'calc(100% - 94px)' : 'calc(100% - 48px)',
+            flex: 1,
+            minHeight: 0,
             overflowY: 'auto',
           }}
         >

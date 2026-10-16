@@ -1,5 +1,6 @@
 ## v1.0.5
 
+- Simplify page headings and align the subscription import bar with a consistent gap above the list.
 - Isolate ClashX installation, profiles, background service and default ports from Clash Verge Rev.
 - Standardize sidebar navigation with monochrome outline icons and consistent label spacing.
 - Integrate window controls into page headings and show application uptime in the sidebar.

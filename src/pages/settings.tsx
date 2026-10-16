@@ -49,9 +49,6 @@ const SettingPage = () => {
   }
   return (
     <BasePage title={t('settings.page.title')}>
-      <Typography className="page-description">
-        {t('layout.redesign.settingsDescription')}
-      </Typography>
       <Typography className="setting-group-title">
         {t('layout.redesign.general')}
       </Typography>
