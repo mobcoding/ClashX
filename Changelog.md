@@ -1,3 +1,9 @@
+## v1.0.6
+
+- Restore automatic group selection after latency testing and refresh the active node.
+
+---
+
 ## v1.0.5
 
 - Simplify page headings and align the subscription import bar with a consistent gap above the list.

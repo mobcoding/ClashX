@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 vi.mock('tauri-plugin-mihomo-api', () => ({
+  delayGroup: vi.fn(async () => ({ fastest: 30, slower: 120 })),
   delayProxyByName: vi.fn(async () => ({ delay: 120 })),
   healthcheckNodeInProvider: vi.fn(async () => ({ delay: 120 })),
 }))
@@ -36,6 +37,55 @@ beforeEach(() => {
 afterEach(() => unsubscribe())
 
 describe('group delay completion', () => {
+  test('automatic groups use core group testing and settle missing results as timeouts', async () => {
+    const { delayGroup, delayProxyByName } = await import(
+      'tauri-plugin-mihomo-api'
+    )
+    const proxies = ['fastest', 'slower', 'offline'].map(node)
+    delayManager.setUrl('automatic', 'https://example.com/generate_204')
+    const itemTestCalls = vi.mocked(delayProxyByName).mock.calls.length
+    await delayManager.checkGroupDelay(
+      proxies as never,
+      { name: 'automatic', type: 'URLTest' },
+      5000,
+    )
+    expect(delayGroup).toHaveBeenCalledWith(
+      'automatic',
+      'https://example.com/generate_204',
+      5000,
+      false,
+    )
+    expect(vi.mocked(delayProxyByName).mock.calls).toHaveLength(itemTestCalls)
+    expect(
+      proxies.map((member) => delayManager.getDelayFix(member, 'automatic')),
+    ).toEqual([30, 120, 0])
+  })
+
+  test('manual groups keep individual testing without changing core selection', async () => {
+    const { delayGroup } = await import('tauri-plugin-mihomo-api')
+    const calls = vi.mocked(delayGroup).mock.calls.length
+    await delayManager.checkGroupDelay(
+      [node('manual')] as never,
+      { name: 'manual', type: 'Selector' },
+      5000,
+    )
+    expect(vi.mocked(delayGroup).mock.calls).toHaveLength(calls)
+  })
+
+  test('failed automatic tests do not leave nodes in a testing state', async () => {
+    const { delayGroup } = await import('tauri-plugin-mihomo-api')
+    vi.mocked(delayGroup).mockRejectedValueOnce(new Error('group test failed'))
+    const member = node('failed-auto')
+    await expect(
+      delayManager.checkGroupDelay(
+        [member] as never,
+        { name: 'failed-auto', type: 'URLTest' },
+        5000,
+      ),
+    ).rejects.toThrow('group test failed')
+    expect(delayManager.getDelayFix(member, 'failed-auto')).toBe(1e6)
+  })
+
   test('notifies once after a batch settles', async () => {
     const proxies = Array.from({ length: 6 }, (_, index) => node(`n${index}`))
 

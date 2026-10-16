@@ -22,6 +22,7 @@ import { BasePage } from '@/components/base'
 import { ProxyItem } from '@/components/proxy/proxy-item'
 import { useProfiles } from '@/hooks/use-profiles'
 import { useProxySelection } from '@/hooks/use-proxy-selection'
+import { useForgetSelection } from '@/hooks/use-record-selection'
 import { useVerge } from '@/hooks/use-verge'
 import {
   useAppRefreshers,
@@ -41,6 +42,7 @@ const NodesPage = () => {
   const { refreshProxy } = useAppRefreshers()
   const { current } = useProfiles()
   const { verge } = useVerge()
+  const forgetSelection = useForgetSelection()
   const [groupName, setGroupName] = useState('')
   const [search, setSearch] = useState('')
   const [testing, setTesting] = useState(false)
@@ -83,7 +85,7 @@ const NodesPage = () => {
     getItemKey: (index) => `${group?.name}:${members[index].index}`,
   })
   const test = useLockFn(async () => {
-    if (!group) return
+    if (!group || !proxyView) return
     setTesting(true)
     try {
       delayManager.setUrl(
@@ -93,11 +95,15 @@ const NodesPage = () => {
           verge?.default_latency_test ||
           'https://www.gstatic.com/generate_204',
       )
-      await delayManager.checkListDelay(
-        members.map(({ member }) => member).filter(isInteractableMember),
-        group.name,
+      await delayManager.checkGroupDelay(
+        group.members
+          .map((member) => resolveMember(proxyView, member))
+          .filter(isInteractableMember),
+        group,
         verge?.default_latency_timeout || 10000,
       )
+      if (group.type === 'URLTest') await forgetSelection(group.name)
+      await refreshProxy()
     } catch (error) {
       showNotice.error(error)
     } finally {

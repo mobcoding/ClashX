@@ -1,9 +1,11 @@
 import {
+  delayGroup,
   delayProxyByName,
   healthcheckNodeInProvider,
   type ProxyDelay,
 } from 'tauri-plugin-mihomo-api'
 
+import { mutate } from '@/services/mutate'
 import {
   memberDetails,
   providerNameOf,
@@ -425,6 +427,37 @@ class DelayManager {
     debugLog(
       `[DelayManager] 批量测试延迟完成，组: ${group}, 总耗时: ${totalTime}ms`,
     )
+  }
+
+  async checkGroupDelay(
+    proxies: InteractableProxyMember[],
+    group: { name: string; type: string },
+    timeout: number,
+  ) {
+    if (group.type !== 'URLTest') {
+      return this.checkListDelay(proxies, group.name, timeout)
+    }
+
+    const url = this.getUrl(group.name)
+    proxies.forEach((member) => this.setDelay(member, group.name, -2, { url }))
+    try {
+      const result = await mutate(
+        () => delayGroup(group.name, url, timeout, false),
+        { id: `select-proxy-node:${group.name}`, errorNotice: false },
+      )
+      proxies.forEach((member) => {
+        this.setDelay(member, group.name, result.value[member.ref.name] ?? 0, {
+          url,
+        })
+      })
+    } catch (error) {
+      proxies.forEach((member) =>
+        this.setDelay(member, group.name, 1e6, { url }),
+      )
+      throw error
+    } finally {
+      this.queueGroupNotification(group.name)
+    }
   }
 
   formatDelay(delay: number, timeout = DEFAULT_DELAY_TIMEOUT) {
