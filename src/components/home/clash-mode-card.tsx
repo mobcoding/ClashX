@@ -3,7 +3,14 @@ import {
   LanguageRounded,
   MultipleStopRounded,
 } from '@mui/icons-material'
-import { Box, Paper, Stack, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  Paper,
+  Stack,
+  Typography,
+} from '@mui/material'
 import { useLockFn } from 'ahooks'
 import { type ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -56,7 +63,7 @@ const MODE_ICONS: Record<ClashMode, ReactNode> = {
   direct: <DirectionsRounded fontSize="small" />,
 }
 
-export const ClashModeCard = () => {
+export const ClashModeCard = ({ compact = false }: { compact?: boolean }) => {
   const { t } = useTranslation()
   const { clashConfig } = useClashConfigData()
   const { isCoreDataPending } = useCoreDataStatus()
@@ -108,6 +115,40 @@ export const ClashModeCard = () => {
     await Promise.allSettled([refreshClashConfig(), refetchBackendMode()])
     setOptimisticMode(null)
   })
+
+  if (compact)
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 2,
+        }}
+      >
+        <Box>
+          <Typography variant="body2">
+            {t('home.page.cards.proxyMode')}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {modeDescription}
+          </Typography>
+        </Box>
+        <ButtonGroup size="small" aria-label={t('home.page.cards.proxyMode')}>
+          {CLASH_MODES.map((mode) => (
+            <Button
+              key={mode}
+              aria-pressed={mode === currentMode}
+              variant={mode === currentMode ? 'contained' : 'outlined'}
+              onClick={() => onChangeMode(mode)}
+            >
+              {t(MODE_META[mode].label)}
+            </Button>
+          ))}
+        </ButtonGroup>
+      </Box>
+    )
 
   const buttonStyles = (mode: ClashMode) => ({
     cursor: 'pointer',

@@ -536,7 +536,11 @@ const PersistentProxySelect = ({
   )
 }
 
-export const CurrentProxyCard = () => {
+export const CurrentProxyCard = ({
+  compact = false,
+}: {
+  compact?: boolean
+}) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const theme = useTheme()
@@ -975,6 +979,35 @@ export const CurrentProxyCard = () => {
         return ''
     }
   }
+
+  if (compact)
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 2,
+          py: 1,
+        }}
+      >
+        <Box sx={{ minWidth: 0 }}>
+          <Typography variant="caption" color="text.secondary">
+            {t('home.components.currentProxy.title')}
+          </Typography>
+          <Typography sx={{ fontSize: 17, mt: 1 }} noWrap>
+            {isCoreDataPending
+              ? t('layout.redesign.loading')
+              : (currentProxy?.name ??
+                selectedGroup?.now ??
+                t('home.components.currentProxy.status.noProxyNode'))}
+          </Typography>
+        </Box>
+        <Button size="small" endIcon={<ChevronRight />} onClick={goToProxies}>
+          {t('layout.redesign.chooseNode')}
+        </Button>
+      </Box>
+    )
 
   return (
     <EnhancedCard

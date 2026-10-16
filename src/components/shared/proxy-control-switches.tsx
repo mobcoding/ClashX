@@ -24,6 +24,7 @@ interface ProxySwitchProps {
   label?: string
   onError?: (err: Error) => void
   noRightPadding?: boolean
+  compact?: boolean
 }
 
 interface SwitchRowProps {
@@ -131,6 +132,7 @@ const ProxyControlSwitches = ({
   label,
   onError,
   noRightPadding = false,
+  compact = false,
 }: ProxySwitchProps) => {
   const { t } = useTranslation()
   const { verge, mutateVerge, patchVerge } = useVerge()
@@ -213,7 +215,7 @@ const ProxyControlSwitches = ({
                   sx={{ color: 'warning.main', ml: 1 }}
                 />
               )}
-              {isServiceInstallReady && (
+              {isServiceInstallReady && !compact && (
                 <TooltipIcon
                   title={t(
                     'settings.sections.proxyControl.actions.uninstallService',

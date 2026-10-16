@@ -95,6 +95,14 @@
       }
     },
     "profileItem": {
+      "labels": {
+        "reorder": "Reorder subscription",
+        "use": "Use",
+        "usage": "Used {{used}} / Total {{total}}",
+        "remaining": "Remaining {{remaining}}",
+        "expires": "Expires: {{date}}",
+        "updated": "Updated {{time}}"
+      },
       "tooltips": {
         "showLast": "Click to show last update time",
         "showNext": "Click to show next update"

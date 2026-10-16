@@ -118,7 +118,10 @@ mod app_init {
         logging!(debug, Type::Setup, "初始化窗口状态管理...");
         let window_state_plugin = tauri_plugin_window_state::Builder::new()
             .with_filename(files::WINDOW_STATE)
-            .with_state_flags(tauri_plugin_window_state::StateFlags::default())
+            .with_state_flags(
+                tauri_plugin_window_state::StateFlags::default()
+                    .difference(tauri_plugin_window_state::StateFlags::DECORATIONS),
+            )
             .build();
         app.handle().plugin(window_state_plugin)?;
         Ok(())
@@ -271,7 +274,7 @@ pub fn run() -> std::process::ExitCode {
 
             #[cfg(target_os = "macos")]
             if let Some(window) = _app_handle.get_webview_window("main") {
-                let _ = window.set_title("Clash Verge");
+                let _ = window.set_title("ClashX");
             }
         }
 

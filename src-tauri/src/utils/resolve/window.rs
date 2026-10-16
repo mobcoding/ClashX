@@ -19,9 +19,9 @@ const DEFAULT_HEIGHT: f64 = 700.0;
 const MINIMAL_WIDTH: f64 = 520.0;
 const MINIMAL_HEIGHT: f64 = 520.0;
 
-#[cfg(target_os = "linux")]
+#[cfg(not(target_os = "macos"))]
 const DEFAULT_DECORATIONS: bool = false;
-#[cfg(not(target_os = "linux"))]
+#[cfg(target_os = "macos")]
 const DEFAULT_DECORATIONS: bool = true;
 
 const fn restored_window_size_is_too_small(width: u32, height: u32) -> bool {
@@ -81,7 +81,7 @@ pub async fn build_new_window() -> Result<WebviewWindow, String> {
         "main", /* the unique window label */
         tauri::WebviewUrl::App(start_page.into()),
     )
-    .title("Clash Verge")
+    .title("ClashX")
     .center()
     .decorations(DEFAULT_DECORATIONS)
     .fullscreen(false)

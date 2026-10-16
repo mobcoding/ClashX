@@ -48,15 +48,15 @@ export const LayoutItem = (props: Props) => {
             cursor: 'pointer',
             '& .MuiListItemText-primary': {
               color: 'text.primary',
-              fontWeight: '700',
+              fontWeight: 500,
             },
           },
           ({ palette: { mode, primary } }) => {
             const bgcolor =
               mode === 'light'
-                ? alpha(primary.main, 0.15)
-                : alpha(primary.main, 0.35)
-            const color = mode === 'light' ? '#1f1f1f' : '#ffffff'
+                ? alpha(primary.main, 0.12)
+                : alpha(primary.main, 0.18)
+            const color = primary.main
             return {
               '&.Mui-selected': { bgcolor },
               '&.Mui-selected:hover': { bgcolor },
@@ -71,7 +71,8 @@ export const LayoutItem = (props: Props) => {
         {(effectiveMenuIcon === 'monochrome' || !effectiveMenuIcon) && (
           <ListItemIcon
             sx={{
-              color: 'text.primary',
+              color: match ? 'primary.main' : 'text.secondary',
+              minWidth: 36,
               marginLeft: '6px',
               cursor: 'inherit',
             }}
@@ -84,8 +85,8 @@ export const LayoutItem = (props: Props) => {
         )}
         <ListItemText
           sx={{
-            textAlign: 'center',
-            marginLeft: effectiveMenuIcon === 'disable' ? '' : '-35px',
+            textAlign: 'left',
+            marginLeft: 0,
           }}
           primary={children}
         />

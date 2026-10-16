@@ -164,7 +164,7 @@ export const useCustomTheme = () => {
             secondary: setting.secondary_text || dt.secondary_text,
           },
           background: {
-            paper: dt.background_color,
+            paper: mode === 'light' ? '#FFFFFF' : '#1B222E',
             default: dt.background_color,
           },
         },
@@ -191,7 +191,7 @@ export const useCustomTheme = () => {
           success: { main: dt.success_color },
           text: { primary: dt.primary_text, secondary: dt.secondary_text },
           background: {
-            paper: dt.background_color,
+            paper: mode === 'light' ? '#FFFFFF' : '#1B222E',
             default: dt.background_color,
           },
         },
@@ -199,13 +199,24 @@ export const useCustomTheme = () => {
       })
     }
 
+    muiTheme.shape.borderRadius = 10
+    muiTheme.palette.divider = mode === 'light' ? '#E0E6EF' : '#293241'
+    muiTheme.typography.fontSize = 13
     const rootEle = document.documentElement
     if (rootEle) {
-      const backgroundColor = mode === 'light' ? '#ECECEC' : dt.background_color
+      const backgroundColor = dt.background_color
       const selectColor = mode === 'light' ? '#f5f5f5' : '#3E3E3E'
       const scrollColor = mode === 'light' ? '#90939980' : '#555555'
       const dividerColor =
         mode === 'light' ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.06)'
+      rootEle.style.setProperty(
+        '--surface-color',
+        muiTheme.palette.background.paper,
+      )
+      rootEle.style.setProperty(
+        '--sidebar-color',
+        mode === 'light' ? '#EDF1F7' : '#151A23',
+      )
       rootEle.style.setProperty('--divider-color', dividerColor)
       rootEle.style.setProperty('--background-color', backgroundColor)
       rootEle.style.setProperty('--selection-color', selectColor)
@@ -274,6 +285,7 @@ export const useCustomTheme = () => {
 
         /* 背景图处理 */
         body {
+          color: ${muiTheme.palette.text.primary};
           font-family: ${dt.font_family};
           background-color: var(--background-color);
           ${
@@ -297,13 +309,12 @@ export const useCustomTheme = () => {
 
         /* 确保模态框和对话框也使用暗色主题 */
         .MuiDialog-paper {
-          background-color: ${mode === 'light' ? '#ffffff' : '#2E303D'} !important;
+          background-color: ${muiTheme.palette.background.paper} !important;
         }
 
-        /* 移除可能的白色点或线条 */
-        * {
-          outline: none !important;
-          box-shadow: none !important;
+        :focus-visible {
+          outline: 2px solid ${muiTheme.palette.primary.main};
+          outline-offset: 3px;
         }
       `
 

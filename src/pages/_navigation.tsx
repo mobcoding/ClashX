@@ -20,7 +20,9 @@ import UnlockSvg from '@/assets/image/itemicon/unlock.svg?react'
 import { navigationItems } from './_navigation-meta'
 import ConnectionsPage from './connections'
 import HomePage from './home'
+import HomeDiagnostics from './home-diagnostics'
 import LogsPage from './logs'
+import NodesPage from './nodes'
 import ProfilePage from './profiles'
 import ProxyPage from './proxies'
 import RulesPage from './rules'
@@ -36,6 +38,18 @@ type NavigationItem = {
 
 export const navItems: NavigationItem[] = [
   {
+    label: navigationItems.home.label,
+    path: '/diagnostics/overview',
+    icon: [],
+    Component: HomeDiagnostics,
+  },
+  {
+    label: navigationItems.proxies.label,
+    path: '/diagnostics/proxies',
+    icon: [],
+    Component: ProxyPage,
+  },
+  {
     ...navigationItems.home,
     icon: [<HomeOutlinedIcon key="mui" />, <HomeSvg key="svg" />],
     Component: HomePage,
@@ -43,7 +57,7 @@ export const navItems: NavigationItem[] = [
   {
     ...navigationItems.proxies,
     icon: [<WifiOutlinedIcon key="mui" />, <ProxiesSvg key="svg" />],
-    Component: ProxyPage,
+    Component: NodesPage,
   },
   {
     ...navigationItems.profiles,
@@ -76,3 +90,7 @@ export const navItems: NavigationItem[] = [
     Component: SettingPage,
   },
 ]
+
+export const primaryNavItems = navItems.filter((item) =>
+  ['/', '/proxies', '/profile', '/settings'].includes(item.path),
+)

@@ -9,14 +9,28 @@ import {
   CheckBoxOutlineBlankRounded,
   CheckBoxRounded,
   ClearRounded,
+  ExpandMoreRounded,
+  AddRounded,
   ContentPasteRounded,
   DeleteRounded,
   IndeterminateCheckBoxRounded,
   LocalFireDepartmentRounded,
+  MoreHorizRounded,
   RefreshRounded,
   TextSnippetOutlined,
 } from '@mui/icons-material'
-import { Box, Button, Divider, Grid, IconButton, Stack } from '@mui/material'
+import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Box,
+  Button,
+  Divider,
+  Grid,
+  IconButton,
+  Stack,
+  Typography,
+} from '@mui/material'
 import { getCurrentWindow } from '@tauri-apps/api/window'
 import { readText } from '@tauri-apps/plugin-clipboard-manager'
 import { readTextFile } from '@tauri-apps/plugin-fs'
@@ -83,6 +97,7 @@ const ProfilePage = () => {
   const { t } = useTranslation()
   const location = useLocation()
   const [url, setUrl] = useState('')
+  const [importOpen, setImportOpen] = useState(false)
   const [disabled, setDisabled] = useState(false)
   const [profileDndRevision, setProfileDndRevision] = useState(0)
   const [activatings, setActivatings] = useState<string[]>([])
@@ -700,64 +715,82 @@ const ProfilePage = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {!batchMode ? (
             <>
-              {/* Batch mode toggle button */}
-              <IconButton
-                size="small"
-                color="inherit"
-                title={t('profiles.page.batch.title')}
-                onClick={toggleBatchMode}
+              <Button
+                variant="contained"
+                startIcon={<AddRounded />}
+                onClick={() => setImportOpen(!importOpen)}
               >
-                <CheckBoxOutlineBlankRounded />
-              </IconButton>
-
-              <IconButton
-                size="small"
-                color="inherit"
-                title={t('profiles.page.actions.updateAll')}
-                onClick={onUpdateAll}
-              >
-                <RefreshRounded />
-              </IconButton>
-
-              <IconButton
-                size="small"
-                color="inherit"
-                title={t('profiles.page.actions.viewRuntimeConfig')}
-                onClick={() => configRef.current?.open()}
-              >
-                <TextSnippetOutlined />
-              </IconButton>
-
-              <IconButton
-                size="small"
-                color="primary"
-                title={t('profiles.page.actions.reactivate')}
-                onClick={() => onEnhance(true)}
-              >
-                <LocalFireDepartmentRounded />
-              </IconButton>
-
-              {/* 故障检测和紧急恢复按钮 */}
-              {(error || isStale) && (
-                <IconButton
-                  size="small"
-                  color="warning"
-                  title={t(
-                    'profiles.page.feedback.tooltips.forceRefreshStaleData',
-                  )}
-                  onClick={onEmergencyRefresh}
-                  sx={{
-                    animation: 'pulse 2s infinite',
-                    '@keyframes pulse': {
-                      '0%': { opacity: 1 },
-                      '50%': { opacity: 0.5 },
-                      '100%': { opacity: 1 },
-                    },
-                  }}
+                {t('layout.redesign.addSubscription')}
+              </Button>
+              <Box component="details" className="subscription-tools">
+                <Box
+                  component="summary"
+                  aria-label={t('layout.redesign.moreTools')}
+                  title={t('layout.redesign.moreTools')}
                 >
-                  <ClearRounded />
-                </IconButton>
-              )}
+                  <MoreHorizRounded />
+                </Box>
+                <Box className="subscription-tools-popover">
+                  {/* Batch mode toggle button */}
+                  <IconButton
+                    size="small"
+                    color="inherit"
+                    title={t('profiles.page.batch.title')}
+                    onClick={toggleBatchMode}
+                  >
+                    <CheckBoxOutlineBlankRounded />
+                  </IconButton>
+
+                  <IconButton
+                    size="small"
+                    color="inherit"
+                    title={t('profiles.page.actions.updateAll')}
+                    onClick={onUpdateAll}
+                  >
+                    <RefreshRounded />
+                  </IconButton>
+
+                  <IconButton
+                    size="small"
+                    color="inherit"
+                    title={t('profiles.page.actions.viewRuntimeConfig')}
+                    onClick={() => configRef.current?.open()}
+                  >
+                    <TextSnippetOutlined />
+                  </IconButton>
+
+                  <IconButton
+                    size="small"
+                    color="primary"
+                    title={t('profiles.page.actions.reactivate')}
+                    onClick={() => onEnhance(true)}
+                  >
+                    <LocalFireDepartmentRounded />
+                  </IconButton>
+
+                  {/* 故障检测和紧急恢复按钮 */}
+                  {(error || isStale) && (
+                    <IconButton
+                      size="small"
+                      color="warning"
+                      title={t(
+                        'profiles.page.feedback.tooltips.forceRefreshStaleData',
+                      )}
+                      onClick={onEmergencyRefresh}
+                      sx={{
+                        animation: 'pulse 2s infinite',
+                        '@keyframes pulse': {
+                          '0%': { opacity: 1 },
+                          '50%': { opacity: 0.5 },
+                          '100%': { opacity: 1 },
+                        },
+                      }}
+                    >
+                      <ClearRounded />
+                    </IconButton>
+                  )}
+                </Box>
+              </Box>
             </>
           ) : (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -804,172 +837,183 @@ const ProfilePage = () => {
         </Box>
       }
     >
-      <Stack
-        direction="row"
-        spacing={1}
-        sx={{
-          pt: 1,
-          mb: 0.5,
-          mx: '10px',
-          height: '36px',
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
-        <BaseStyledTextField
-          value={url}
-          variant="outlined"
-          onChange={(e) => setUrl(e.target.value)}
-          onKeyDown={(event) => {
-            if (event.key !== 'Enter' || event.nativeEvent.isComposing) {
-              return
-            }
-            if (!url || disabled || loading) {
-              return
-            }
-            event.preventDefault()
-            void onImport()
-          }}
-          placeholder={t('profiles.page.importForm.placeholder')}
-          slotProps={{
-            input: {
-              sx: { pr: 1 },
-              endAdornment: !url ? (
-                <IconButton
-                  size="small"
-                  sx={{ p: 0.5 }}
-                  title={t('profiles.page.importForm.actions.paste')}
-                  onClick={onCopyLink}
-                >
-                  <ContentPasteRounded fontSize="inherit" />
-                </IconButton>
-              ) : (
-                <IconButton
-                  size="small"
-                  sx={{ p: 0.5 }}
-                  title={t('shared.actions.clear')}
-                  onClick={() => setUrl('')}
-                >
-                  <ClearRounded fontSize="inherit" />
-                </IconButton>
-              ),
-            },
-          }}
-        />
-        <Button
-          disabled={!url || disabled}
-          loading={loading}
-          variant="contained"
-          size="small"
-          sx={{ borderRadius: '6px' }}
-          onClick={onImport}
-        >
-          {t('profiles.page.actions.import')}
-        </Button>
-        <Button
-          variant="contained"
-          size="small"
-          sx={{ borderRadius: '6px' }}
-          onClick={() => viewerRef.current?.create()}
-        >
-          {t('shared.actions.new')}
-        </Button>
-      </Stack>
-
-      <Box
-        sx={{
-          pl: '10px',
-          pr: '10px',
-          height: 'calc(100% - 48px)',
-          overflowY: 'auto',
-        }}
-      >
-        <DragDropProvider
-          key={profileDndRevision}
-          sensors={[profilePointerSensor, KeyboardSensor]}
-          onDragEnd={onDragEnd}
-        >
-          <Box
+      <Box className="subscriptions-page">
+        <Typography className="page-description">
+          {t('layout.redesign.subscriptionDescription')}
+        </Typography>
+        {importOpen && (
+          <Stack
+            direction="row"
+            spacing={1}
             sx={{
-              mb: 1.5,
-              display: 'grid',
-              overflow: 'hidden',
-              // Up to 4 columns until a column would pass 480px, then more; 24px is the 3 gaps from `gap: 1`.
-              gridTemplateColumns:
-                'repeat(auto-fill, minmax(clamp(260px, calc((100% - 24px) / 4), 480px), 1fr))',
-              gap: 1,
-              px: 0.5,
+              pt: 1,
+              mb: 0.5,
+              mx: '10px',
+              height: '36px',
+              display: 'flex',
+              alignItems: 'center',
             }}
           >
-            {profileItems.map((item, index) => (
-              <ProfileItem
-                key={item.uid}
-                id={item.uid!}
-                index={index}
-                selected={(switchTarget ?? profiles.current) === item.uid}
-                activating={
-                  activatings.includes(item.uid!) ||
-                  visibleSwitchingProfile === item.uid
+            <BaseStyledTextField
+              value={url}
+              variant="outlined"
+              onChange={(e) => setUrl(e.target.value)}
+              onKeyDown={(event) => {
+                if (event.key !== 'Enter' || event.nativeEvent.isComposing) {
+                  return
                 }
-                itemData={item}
-                timerUpdateRevision={timerRevisions.get(item.uid!) ?? 0}
-                completedUpdateRevision={
-                  completedUpdateRevisions.get(item.uid!) ?? 0
+                if (!url || disabled || loading) {
+                  return
                 }
-                mutateProfiles={mutateProfiles}
-                onSelect={(f) => onSelect(item.uid!, f)}
-                onEdit={() => viewerRef.current?.edit(item)}
-                onSave={async (prev, curr) => {
-                  if (prev !== curr && profiles.current === item.uid) {
-                    await onEnhance(false)
+                event.preventDefault()
+                void onImport()
+              }}
+              placeholder={t('profiles.page.importForm.placeholder')}
+              slotProps={{
+                input: {
+                  sx: { pr: 1 },
+                  endAdornment: !url ? (
+                    <IconButton
+                      size="small"
+                      sx={{ p: 0.5 }}
+                      title={t('profiles.page.importForm.actions.paste')}
+                      onClick={onCopyLink}
+                    >
+                      <ContentPasteRounded fontSize="inherit" />
+                    </IconButton>
+                  ) : (
+                    <IconButton
+                      size="small"
+                      sx={{ p: 0.5 }}
+                      title={t('shared.actions.clear')}
+                      onClick={() => setUrl('')}
+                    >
+                      <ClearRounded fontSize="inherit" />
+                    </IconButton>
+                  ),
+                },
+              }}
+            />
+            <Button
+              disabled={!url || disabled}
+              loading={loading}
+              variant="contained"
+              size="small"
+              sx={{ borderRadius: '6px' }}
+              onClick={onImport}
+            >
+              {t('profiles.page.actions.import')}
+            </Button>
+            <Button
+              variant="contained"
+              size="small"
+              sx={{ borderRadius: '6px' }}
+              onClick={() => viewerRef.current?.create()}
+            >
+              {t('shared.actions.new')}
+            </Button>
+          </Stack>
+        )}
+
+        <Box
+          sx={{
+            px: 0,
+            height: importOpen ? 'calc(100% - 94px)' : 'calc(100% - 48px)',
+            overflowY: 'auto',
+          }}
+        >
+          <DragDropProvider
+            key={profileDndRevision}
+            sensors={[profilePointerSensor, KeyboardSensor]}
+            onDragEnd={onDragEnd}
+          >
+            <Box
+              sx={{
+                mb: 1.5,
+                display: 'grid',
+                overflow: 'hidden',
+                gridTemplateColumns: 'minmax(0, 1fr)',
+                gap: 1,
+                px: 0,
+              }}
+            >
+              {profileItems.map((item, index) => (
+                <ProfileItem
+                  key={item.uid}
+                  id={item.uid!}
+                  index={index}
+                  selected={(switchTarget ?? profiles.current) === item.uid}
+                  activating={
+                    activatings.includes(item.uid!) ||
+                    visibleSwitchingProfile === item.uid
                   }
-                }}
-                onDelete={() => {
-                  if (batchMode) {
-                    toggleProfileSelection(item.uid!)
-                  } else {
-                    onDelete(item.uid!)
+                  itemData={item}
+                  timerUpdateRevision={timerRevisions.get(item.uid!) ?? 0}
+                  completedUpdateRevision={
+                    completedUpdateRevisions.get(item.uid!) ?? 0
                   }
-                }}
-                batchMode={batchMode}
-                isSelected={selectedProfiles.has(item.uid!)}
-                onSelectionChange={() => toggleProfileSelection(item.uid!)}
-              />
-            ))}
+                  mutateProfiles={mutateProfiles}
+                  onSelect={(f) => onSelect(item.uid!, f)}
+                  onEdit={() => viewerRef.current?.edit(item)}
+                  onSave={async (prev, curr) => {
+                    if (prev !== curr && profiles.current === item.uid) {
+                      await onEnhance(false)
+                    }
+                  }}
+                  onDelete={() => {
+                    if (batchMode) {
+                      toggleProfileSelection(item.uid!)
+                    } else {
+                      onDelete(item.uid!)
+                    }
+                  }}
+                  batchMode={batchMode}
+                  isSelected={selectedProfiles.has(item.uid!)}
+                  onSelectionChange={() => toggleProfileSelection(item.uid!)}
+                />
+              ))}
+            </Box>
+          </DragDropProvider>
+          <Divider
+            variant="middle"
+            flexItem
+            sx={{ width: `calc(100% - 32px)`, borderColor: dividercolor }}
+          ></Divider>
+          <Box sx={{ mt: 1.5, mb: '10px' }}>
+            <Accordion className="clashx-accordion" disableGutters>
+              <AccordionSummary expandIcon={<ExpandMoreRounded />}>
+                {t('layout.redesign.advanced')}
+              </AccordionSummary>
+              <AccordionDetails>
+                {' '}
+                <Grid container spacing={{ xs: 1, lg: 1 }}>
+                  <Grid size={{ xs: 12, sm: 6, md: 6, lg: 6 }}>
+                    <ProfileMore
+                      id="Merge"
+                      onSave={async (prev, curr) => {
+                        if (prev !== curr) {
+                          await onEnhance(false)
+                        }
+                      }}
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6, md: 6, lg: 6 }}>
+                    <ProfileMore
+                      id="Script"
+                      logInfo={chainLogs['Script']}
+                      onSave={async (prev, curr) => {
+                        if (prev !== curr) {
+                          await onEnhance(false)
+                        }
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+              </AccordionDetails>
+            </Accordion>
           </Box>
-        </DragDropProvider>
-        <Divider
-          variant="middle"
-          flexItem
-          sx={{ width: `calc(100% - 32px)`, borderColor: dividercolor }}
-        ></Divider>
-        <Box sx={{ mt: 1.5, mb: '10px' }}>
-          <Grid container spacing={{ xs: 1, lg: 1 }}>
-            <Grid size={{ xs: 12, sm: 6, md: 6, lg: 6 }}>
-              <ProfileMore
-                id="Merge"
-                onSave={async (prev, curr) => {
-                  if (prev !== curr) {
-                    await onEnhance(false)
-                  }
-                }}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 6, lg: 6 }}>
-              <ProfileMore
-                id="Script"
-                logInfo={chainLogs['Script']}
-                onSave={async (prev, curr) => {
-                  if (prev !== curr) {
-                    await onEnhance(false)
-                  }
-                }}
-              />
-            </Grid>
-          </Grid>
         </Box>
       </Box>
-
       <ProfileViewer
         ref={viewerRef}
         onChange={async (isActivating) => {

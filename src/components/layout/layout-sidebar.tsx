@@ -1,19 +1,18 @@
 import { DragDropProvider, KeyboardSensor, PointerSensor } from '@dnd-kit/react'
-import { Box, List, Menu, MenuItem, SvgIcon } from '@mui/material'
+import { Box, List, Menu, MenuItem, Typography } from '@mui/material'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import iconDark from '@/assets/image/icon_dark.svg?react'
-import iconLight from '@/assets/image/icon_light.svg?react'
-import LogoSvg from '@/assets/image/logo.svg?react'
+import appIcon from '@/assets/image/app-icon.svg'
+import { useAppUptime } from '@/hooks/use-system-state'
 import { useVerge } from '@/hooks/use-verge'
 import { useNavMenuOrder } from '@/pages/_layout/hooks'
-import { navItems } from '@/pages/_navigation'
+import { primaryNavItems } from '@/pages/_navigation'
+import { useSystemData } from '@/providers/app-data-context'
 
 import { SortableItem } from '../base'
 
 import { LayoutItem } from './layout-item'
-import { LayoutTraffic } from './layout-traffic'
 import { UpdateButton } from './update-button'
 
 type MenuContextPosition = { top: number; left: number }
@@ -26,7 +25,18 @@ interface LayoutSidebarProps {
 const SENSORS = [PointerSensor, KeyboardSensor]
 
 export const LayoutSidebar = (props: LayoutSidebarProps) => {
-  const { isDark, isCollapsed } = props
+  const { isCollapsed } = props
+  const uptime = useAppUptime()
+  const seconds = Math.floor(uptime / 1000)
+  const elapsed = [
+    Math.floor(seconds / 3600),
+    Math.floor((seconds % 3600) / 60),
+    seconds % 60,
+  ]
+    .map((value) => String(value).padStart(2, '0'))
+    .join(':')
+  const { runningMode } = useSystemData()
+  const coreRunning = runningMode === 'Service' || runningMode === 'Sidecar'
   const { t } = useTranslation()
   const { verge, mutateVerge, patchVerge } = useVerge()
   const [menuUnlocked, setMenuUnlocked] = useState(false)
@@ -56,7 +66,7 @@ export const LayoutSidebar = (props: LayoutSidebarProps) => {
     resetMenuOrder,
   } = useNavMenuOrder({
     enabled: menuUnlocked,
-    items: navItems,
+    items: primaryNavItems,
     storedOrder: verge?.menu_order,
     onOptimisticUpdate: handleMenuOrderOptimisticUpdate,
     onPersist: handleMenuOrderPersist,
@@ -133,18 +143,19 @@ export const LayoutSidebar = (props: LayoutSidebarProps) => {
             justifyContent: 'space-between',
           }}
         >
-          <SvgIcon
-            component={isDark ? iconDark : iconLight}
-            style={{
-              height: '36px',
-              width: '36px',
-              marginTop: '-3px',
-              marginRight: '5px',
-              marginLeft: '-3px',
-            }}
-            inheritViewBox
+          <Box
+            component="img"
+            src={appIcon}
+            alt=""
+            className="clashx-brand-mark"
           />
-          <LogoSvg fill={isDark ? 'white' : 'black'} />
+          {!isCollapsed && (
+            <Typography
+              sx={{ fontSize: 22, fontWeight: 650, letterSpacing: -0.7 }}
+            >
+              ClashX
+            </Typography>
+          )}
         </div>
         <UpdateButton className="the-newbtn" />
       </div>
@@ -224,7 +235,27 @@ export const LayoutSidebar = (props: LayoutSidebarProps) => {
 
       {/* Traffic */}
       <div className="the-traffic">
-        <LayoutTraffic />
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            fontVariantNumeric: 'tabular-nums',
+          }}
+        >
+          <Box
+            component="span"
+            sx={{
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              bgcolor: coreRunning ? 'success.main' : 'text.disabled',
+            }}
+          />
+          {!isCollapsed && t('layout.redesign.uptime', { time: elapsed })}
+        </Typography>
       </div>
     </div>
   )

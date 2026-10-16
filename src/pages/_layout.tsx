@@ -1,7 +1,7 @@
 import { Paper, ThemeProvider } from '@mui/material'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Outlet, useNavigate } from 'react-router'
 
@@ -10,10 +10,7 @@ import { LayoutSidebar } from '@/components/layout/layout-sidebar'
 import { NoticeManager } from '@/components/layout/notice-manager'
 import { ServiceMigrationDialog } from '@/components/layout/service-migration-dialog'
 import { SysproxyPrivilegeDialog } from '@/components/layout/sysproxy-privilege-dialog'
-import {
-  WindowControls,
-  WindowResizeHandles,
-} from '@/components/layout/window-controller'
+import { WindowResizeHandles } from '@/components/layout/window-controller'
 import { useI18n } from '@/hooks/use-i18n'
 import { useVerge } from '@/hooks/use-verge'
 import { useWindowDecorations } from '@/hooks/use-window'
@@ -28,7 +25,6 @@ import {
   usePendingFailures,
 } from './_layout/hooks'
 
-import 'dayjs/locale/ru'
 import 'dayjs/locale/zh-cn'
 
 dayjs.extend(relativeTime)
@@ -46,22 +42,7 @@ const Layout = () => {
   const { switchLanguage } = useI18n()
   const navigate = useNavigate()
   const themeReady = useMemo(() => Boolean(theme), [theme])
-  const windowControlsRef = useRef<any>(null)
   const { decorated } = useWindowDecorations()
-
-  const customTitlebar = useMemo(
-    () =>
-      decorated === false ? (
-        <div className="the_titlebar">
-          <div
-            className="the_titlebar-drag-region"
-            data-tauri-drag-region="true"
-          />
-          <WindowControls ref={windowControlsRef} />
-        </div>
-      ) : null,
-    [decorated],
-  )
 
   useLoadingOverlay(themeReady)
 
@@ -144,7 +125,7 @@ const Layout = () => {
           }
         }}
         sx={[
-          ({ palette }) => ({ bgcolor: palette.background.paper }),
+          ({ palette }) => ({ bgcolor: palette.background.default }),
           OS === 'linux'
             ? {
                 borderRadius: '8px',
@@ -155,9 +136,6 @@ const Layout = () => {
         ]}
       >
         {decorated === false && <WindowResizeHandles />}
-
-        {/* Custom titlebar - rendered only when decorated is false, memoized for performance */}
-        {customTitlebar}
 
         <div className="layout-content">
           <LayoutSidebar isDark={isDark} isCollapsed={navCollapsed} />

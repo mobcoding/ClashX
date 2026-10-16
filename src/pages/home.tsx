@@ -1,404 +1,180 @@
 import {
-  DnsOutlined,
-  HelpOutlineRounded,
-  HistoryEduOutlined,
-  RouterOutlined,
-  SettingsOutlined,
-  SpeedOutlined,
+  PowerSettingsNewRounded,
+  ChevronRightRounded,
 } from '@mui/icons-material'
-import {
-  Box,
-  Button,
-  Checkbox,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  FormControlLabel,
-  FormGroup,
-  Grid,
-  IconButton,
-  Skeleton,
-  Tooltip,
-} from '@mui/material'
+import { Box, Button, LinearProgress, Typography } from '@mui/material'
 import { useLockFn } from 'ahooks'
-import { Suspense, lazy, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router'
 
-import { BasePage } from '@/components/base'
+import { BasePage, Switch } from '@/components/base'
 import { ClashModeCard } from '@/components/home/clash-mode-card'
 import { CurrentProxyCard } from '@/components/home/current-proxy-card'
-import { EnhancedCard } from '@/components/home/enhanced-card'
-import { EnhancedTrafficStats } from '@/components/home/enhanced-traffic-stats'
-import { HomeProfileCard } from '@/components/home/home-profile-card'
-import { ProxyTunCard } from '@/components/home/proxy-tun-card'
 import { useProfiles } from '@/hooks/use-profiles'
-import { useVerge } from '@/hooks/use-verge'
-import { entry_lightweight_mode } from '@/services/cmds'
-import { mutate } from '@/services/mutate'
+import { useSystemProxyState } from '@/hooks/use-system-proxy-state'
+import { useTrafficData } from '@/hooks/use-traffic-data'
+import { useVisibility } from '@/hooks/use-visibility'
 import { showNotice } from '@/services/notice-service'
-import { openExternalUrl } from '@/utils/open-external-url'
-
-const preloadTestCard = () =>
-  import('@/components/home/test-card').then((module) => ({
-    default: module.TestCard,
-  }))
-const preloadIpInfoCard = () =>
-  import('@/components/home/ip-info-card').then((module) => ({
-    default: module.IpInfoCard,
-  }))
-const preloadClashInfoCard = () =>
-  import('@/components/home/clash-info-card').then((module) => ({
-    default: module.ClashInfoCard,
-  }))
-const preloadSystemInfoCard = () =>
-  import('@/components/home/system-info-card').then((module) => ({
-    default: module.SystemInfoCard,
-  }))
-
-const LazyTestCard = lazy(preloadTestCard)
-const LazyIpInfoCard = lazy(preloadIpInfoCard)
-const LazyClashInfoCard = lazy(preloadClashInfoCard)
-const LazySystemInfoCard = lazy(preloadSystemInfoCard)
-
-// Used by bootstrap to initiate optional card imports without blocking render.
-// eslint-disable-next-line react-refresh/only-export-components
-export const preloadHomePageCards = () =>
-  Promise.all([
-    preloadTestCard().catch(() => {}),
-    preloadIpInfoCard().catch(() => {}),
-    preloadClashInfoCard().catch(() => {}),
-    preloadSystemInfoCard().catch(() => {}),
-  ])
-
-// 定义首页卡片设置接口
-interface HomeCardsSettings {
-  profile: boolean
-  proxy: boolean
-  network: boolean
-  mode: boolean
-  traffic: boolean
-  info: boolean
-  clashinfo: boolean
-  systeminfo: boolean
-  test: boolean
-  ip: boolean
-  [key: string]: boolean
-}
-
-const DEFAULT_HOME_CARDS: HomeCardsSettings = {
-  info: false,
-  profile: true,
-  proxy: true,
-  network: true,
-  mode: true,
-  traffic: true,
-  clashinfo: true,
-  systeminfo: true,
-  test: true,
-  ip: true,
-}
-
-const serializeCardFlags = (cards: HomeCardsSettings) =>
-  Object.keys(cards)
-    .sort()
-    .map((key) => `${key}:${cards[key] ? 1 : 0}`)
-    .join('|')
-
-// 首页设置对话框组件接口
-interface HomeSettingsDialogProps {
-  onClose: () => void
-  homeCards: HomeCardsSettings
-}
-
-// 首页设置对话框组件
-const HomeSettingsDialog = ({
-  onClose,
-  homeCards,
-}: HomeSettingsDialogProps) => {
-  const { t } = useTranslation()
-  const [cards, setCards] = useState<HomeCardsSettings>(homeCards)
-  const { patchVerge } = useVerge()
-
-  const handleToggle = (key: string) => {
-    setCards((prev: HomeCardsSettings) => ({
-      ...prev,
-      [key]: !prev[key],
-    }))
-  }
-
-  const handleSave = async () => {
-    await patchVerge({ home_cards: cards })
-    onClose()
-  }
-
-  return (
-    <Dialog open onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>{t('home.page.settings.title')}</DialogTitle>
-      <DialogContent>
-        <FormGroup>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={cards.profile || false}
-                onChange={() => handleToggle('profile')}
-              />
-            }
-            label={t('home.page.settings.cards.profile')}
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={cards.proxy || false}
-                onChange={() => handleToggle('proxy')}
-              />
-            }
-            label={t('home.page.settings.cards.currentProxy')}
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={cards.network || false}
-                onChange={() => handleToggle('network')}
-              />
-            }
-            label={t('home.page.settings.cards.network')}
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={cards.mode || false}
-                onChange={() => handleToggle('mode')}
-              />
-            }
-            label={t('home.page.settings.cards.proxyMode')}
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={cards.traffic || false}
-                onChange={() => handleToggle('traffic')}
-              />
-            }
-            label={t('home.page.settings.cards.traffic')}
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={cards.test || false}
-                onChange={() => handleToggle('test')}
-              />
-            }
-            label={t('home.page.settings.cards.tests')}
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={cards.ip || false}
-                onChange={() => handleToggle('ip')}
-              />
-            }
-            label={t('home.page.settings.cards.ip')}
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={cards.clashinfo || false}
-                onChange={() => handleToggle('clashinfo')}
-              />
-            }
-            label={t('home.page.settings.cards.clashInfo')}
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={cards.systeminfo || false}
-                onChange={() => handleToggle('systeminfo')}
-              />
-            }
-            label={t('home.page.settings.cards.systemInfo')}
-          />
-        </FormGroup>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>{t('shared.actions.cancel')}</Button>
-        <Button onClick={handleSave} color="primary">
-          {t('shared.actions.save')}
-        </Button>
-      </DialogActions>
-    </Dialog>
-  )
-}
+import parseTraffic from '@/utils/parse-traffic'
 
 const HomePage = () => {
   const { t } = useTranslation()
-  const { verge } = useVerge()
-  const { current, mutateProfiles } = useProfiles()
-
-  // 设置弹窗的状态
-  const [settingsOpen, setSettingsOpen] = useState(false)
-
-  // 卡片显示状态
-  const homeCards =
-    (verge?.home_cards as HomeCardsSettings | undefined) ?? DEFAULT_HOME_CARDS
-
-  // 文档链接函数
-  const toGithubDoc = useLockFn(() =>
-    openExternalUrl('https://clash-verge-rev.github.io/index.html').catch(
-      showNotice.error,
-    ),
-  )
-
-  // 新增：打开设置弹窗
-  const openSettings = useCallback(() => {
-    setSettingsOpen(true)
-  }, [])
-
-  const renderCard = useCallback(
-    (cardKey: string, component: React.ReactNode, size: number = 6) => {
-      if (!homeCards[cardKey]) return null
-
-      return (
-        <Grid size={size} key={cardKey}>
-          {component}
-        </Grid>
-      )
-    },
-    [homeCards],
-  )
-
-  const criticalCards = useMemo(
-    () => [
-      renderCard(
-        'profile',
-        <HomeProfileCard current={current} onProfileUpdated={mutateProfiles} />,
-      ),
-      renderCard('proxy', <CurrentProxyCard />),
-      renderCard('network', <NetworkSettingsCard />),
-      renderCard('mode', <ClashModeEnhancedCard />),
-    ],
-    [current, mutateProfiles, renderCard],
-  )
-
-  const nonCriticalCards = useMemo(
-    () => [
-      renderCard(
-        'traffic',
-        <EnhancedCard
-          title={t('home.page.cards.trafficStats')}
-          icon={<SpeedOutlined />}
-          iconColor="secondary"
-        >
-          <EnhancedTrafficStats />
-        </EnhancedCard>,
-        12,
-      ),
-      renderCard(
-        'test',
-        <Suspense fallback={<Skeleton variant="rectangular" height={200} />}>
-          <LazyTestCard />
-        </Suspense>,
-      ),
-      renderCard(
-        'ip',
-        <Suspense fallback={<Skeleton variant="rectangular" height={200} />}>
-          <LazyIpInfoCard />
-        </Suspense>,
-      ),
-      renderCard(
-        'clashinfo',
-        <Suspense fallback={<Skeleton variant="rectangular" height={200} />}>
-          <LazyClashInfoCard />
-        </Suspense>,
-      ),
-      renderCard(
-        'systeminfo',
-        <Suspense fallback={<Skeleton variant="rectangular" height={200} />}>
-          <LazySystemInfoCard />
-        </Suspense>,
-      ),
-    ],
-    [t, renderCard],
-  )
+  const navigate = useNavigate()
+  const { current } = useProfiles()
+  const { indicator, toggleSystemProxy } = useSystemProxyState()
+  const visible = useVisibility()
+  const {
+    response: { data: traffic },
+  } = useTrafficData({ enabled: visible })
+  const toggle = useLockFn(async (enabled: boolean) => {
+    try {
+      await toggleSystemProxy(enabled)
+    } catch (error) {
+      showNotice.error(error)
+    }
+  })
+  const extra = current?.extra
+  const used = extra ? extra.upload + extra.download : 0
+  const progress =
+    extra && extra.total > 0
+      ? Math.min(100, (used / extra.total) * 100)
+      : undefined
   return (
-    <BasePage
-      title={t('home.page.title')}
-      contentStyle={{ padding: 2 }}
-      header={
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Tooltip title={t('home.page.tooltips.lightweightMode')} arrow>
-            <IconButton
-              onClick={async () =>
-                await mutate(() => entry_lightweight_mode(), {
-                  id: 'entry-lightweight-mode',
-                  errorNotice: false,
-                })
-              }
-              size="small"
-              color="inherit"
-            >
-              <HistoryEduOutlined />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={t('home.page.tooltips.manual')} arrow>
-            <IconButton onClick={toGithubDoc} size="small" color="inherit">
-              <HelpOutlineRounded />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={t('home.page.tooltips.settings')} arrow>
-            <IconButton onClick={openSettings} size="small" color="inherit">
-              <SettingsOutlined />
-            </IconButton>
-          </Tooltip>
+    <BasePage title={t('layout.components.navigation.tabs.home')}>
+      <Typography className="page-description">
+        {t('layout.redesign.overviewDescription')}
+      </Typography>
+      <Box className="clashx-panel overview-connection">
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box
+            sx={{
+              p: 1.75,
+              borderRadius: 2,
+              bgcolor: 'action.selected',
+              color: indicator ? 'success.main' : 'text.secondary',
+              display: 'flex',
+            }}
+          >
+            <PowerSettingsNewRounded />
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="h6">
+              {t(
+                indicator
+                  ? 'layout.redesign.proxyEnabled'
+                  : 'layout.redesign.proxyDisabled',
+              )}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {t('layout.redesign.proxyDescription')}
+            </Typography>
+          </Box>
+          <Switch
+            checked={indicator}
+            onChange={(_, value) => {
+              void toggle(value)
+            }}
+            slotProps={{
+              input: {
+                'aria-label': t('settings.sections.system.toggles.systemProxy'),
+              },
+            }}
+          />
         </Box>
-      }
-    >
-      <Grid container spacing={1.5} columns={{ xs: 6, sm: 6, md: 12 }}>
-        {criticalCards}
-
-        {nonCriticalCards}
-      </Grid>
-
-      {/* 首页设置弹窗 */}
-      {settingsOpen && (
-        <HomeSettingsDialog
-          key={serializeCardFlags(homeCards)}
-          onClose={() => setSettingsOpen(false)}
-          homeCards={homeCards}
-        />
-      )}
+        <Box
+          sx={{ borderTop: 1, borderColor: 'divider', mt: 3, pt: 1 }}
+          className="overview-current-proxy"
+        >
+          <CurrentProxyCard compact />
+        </Box>
+      </Box>
+      <Box className="overview-mode">
+        <ClashModeCard compact />
+      </Box>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+          gap: 2,
+          my: 3,
+        }}
+      >
+        {(['down', 'up'] as const).map((direction) => {
+          const [value, unit] = parseTraffic(traffic?.[direction] ?? 0)
+          return (
+            <Box className="clashx-panel" key={direction} sx={{ mb: 0 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                {t(
+                  direction === 'down'
+                    ? 'layout.redesign.download'
+                    : 'layout.redesign.upload',
+                )}
+              </Typography>
+              <Typography
+                component="span"
+                sx={{ fontSize: 28, fontWeight: 500 }}
+              >
+                {value}
+              </Typography>
+              <Typography
+                component="span"
+                color="text.secondary"
+                sx={{ ml: 1, fontSize: 12 }}
+              >
+                {unit}/s
+              </Typography>
+            </Box>
+          )
+        })}
+      </Box>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 1,
+        }}
+      >
+        <Typography variant="body2">
+          {t('layout.redesign.currentSubscription')}
+        </Typography>
+        <Button
+          size="small"
+          endIcon={<ChevronRightRounded />}
+          onClick={() => navigate('/profile')}
+        >
+          {t('layout.redesign.manageSubscriptions')}
+        </Button>
+      </Box>
+      <Box className="clashx-panel">
+        <Typography sx={{ fontWeight: 500 }}>
+          {current?.name || t('layout.redesign.noSubscription')}
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          {extra && extra.total > 0
+            ? `${parseTraffic(Math.max(0, extra.total - used)).join(' ')} / ${parseTraffic(extra.total).join(' ')}`
+            : t('layout.redesign.noTrafficLimit')}
+          {extra?.expire
+            ? ` · ${new Date(extra.expire * 1000).toLocaleDateString()}`
+            : ''}
+        </Typography>
+        {progress !== undefined && (
+          <LinearProgress
+            variant="determinate"
+            value={progress}
+            color={
+              progress >= 90 ? 'error' : progress >= 70 ? 'warning' : 'success'
+            }
+            sx={{ mt: 2, height: 4, borderRadius: 2 }}
+          />
+        )}
+        {!current && (
+          <Button sx={{ mt: 1 }} onClick={() => navigate('/profile')}>
+            {t('layout.redesign.addSubscription')}
+          </Button>
+        )}
+      </Box>
     </BasePage>
   )
 }
-
-// 增强版网络设置卡片组件
-const NetworkSettingsCard = () => {
-  const { t } = useTranslation()
-  return (
-    <EnhancedCard
-      title={t('home.page.cards.networkSettings')}
-      icon={<DnsOutlined />}
-      iconColor="primary"
-      action={null}
-    >
-      <ProxyTunCard />
-    </EnhancedCard>
-  )
-}
-
-// 增强版 Clash 模式卡片组件
-const ClashModeEnhancedCard = () => {
-  const { t } = useTranslation()
-  return (
-    <EnhancedCard
-      title={t('home.page.cards.proxyMode')}
-      icon={<RouterOutlined />}
-      iconColor="info"
-      action={null}
-    >
-      <ClashModeCard />
-    </EnhancedCard>
-  )
-}
-
 export default HomePage

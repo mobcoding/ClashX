@@ -1,3 +1,28 @@
+## v1.0.5
+
+- Integrate window controls into page headings and show application uptime in the sidebar.
+- Polish page alignment, node-list corners and subscription usage colors, and simplify settings labels.
+- Group advanced settings into compact, independently stacked cards.
+- Unify toggle switches across pages with the Settings switch style.
+- Arrange subscription cards around status, traffic usage and update details.
+- Rename application titles, installer branding and notifications to ClashX.
+- Windows: Start with the custom title bar even when an older window state saved the system title bar.
+
+---
+
+## v1.0.4
+
+- Replace application, installer and tray icons with the white-circle umbrella design.
+- Simplify navigation, overview, nodes and settings with a consistent light and dark interface.
+
+---
+
+## v1.0.3
+
+- Windows: Use the custom title bar by default while keeping the system title bar optional.
+
+---
+
 ## v1.0.2
 
 - Disable application and core logging by default while keeping log levels configurable.

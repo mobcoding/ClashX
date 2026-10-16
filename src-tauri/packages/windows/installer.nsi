@@ -60,9 +60,10 @@ ${StrLoc}
 !define WEBVIEW2BOOTSTRAPPERPATH "{{webview2_bootstrapper_path}}"
 !define WEBVIEW2INSTALLERPATH "{{webview2_installer_path}}"
 !define MINIMUMWEBVIEW2VERSION "{{minimum_webview2_version}}"
-!define UNINSTKEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCTNAME}"
+; Keep the installed identity stable across the ClashX display-name change.
+!define UNINSTKEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\Clash Verge"
 !define MANUKEY "Software\${MANUFACTURER}"
-!define MANUPRODUCTKEY "${MANUKEY}\${PRODUCTNAME}"
+!define MANUPRODUCTKEY "Software\Clash Verge Rev\Clash Verge"
 !define UNINSTALLERSIGNCOMMAND "{{uninstaller_sign_cmd}}"
 !define ESTIMATEDSIZE "{{estimated_size}}"
 !define STARTMENUFOLDER "{{start_menu_folder}}"

@@ -27,7 +27,6 @@ export const EnhancedCard = forwardRef<HTMLElement, EnhancedCardProps>(
     ref,
   ) => {
     const theme = useTheme()
-    const isDark = theme.palette.mode === 'dark'
 
     // 统一的标题截断样式
     const titleTruncateStyle = {
@@ -41,12 +40,15 @@ export const EnhancedCard = forwardRef<HTMLElement, EnhancedCardProps>(
 
     return (
       <Box
+        className="enhanced-card"
         sx={{
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
           borderRadius: 2,
-          backgroundColor: isDark ? '#282a36' : '#ffffff',
+          backgroundColor: theme.palette.background.paper,
+          border: '1px solid',
+          borderColor: 'divider',
         }}
         ref={ref}
       >

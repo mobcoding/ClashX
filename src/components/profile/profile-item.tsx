@@ -3,10 +3,13 @@ import {
   CheckBoxOutlineBlankRounded,
   CheckBoxRounded,
   DragIndicatorRounded,
+  MoreHorizRounded,
   RefreshRounded,
 } from '@mui/icons-material'
 import {
   Box,
+  Button,
+  Chip,
   CircularProgress,
   IconButton,
   keyframes,
@@ -47,7 +50,6 @@ import {
 } from '@/store/app-store-context'
 import type { TranslationKey } from '@/types/generated/i18n-keys'
 import { debugLog } from '@/utils/debug'
-import { isValidUrl } from '@/utils/network'
 import { openExternalUrl } from '@/utils/open-external-url'
 import parseTraffic from '@/utils/parse-traffic'
 
@@ -125,7 +127,8 @@ const ProfileItemBase = (props: ProfileItemProps) => {
     [itemData.uid, setProfileLoading],
   )
 
-  const { uid, name = 'Profile', extra, updated = 0, option } = itemData
+  const { uid, name = 'Profile', extra, option } = itemData
+  const updated = itemData.updated ?? 0
 
   const fetchNextUpdateTimeCallback = useCallback(
     async (forceRefresh = false) => {
@@ -245,13 +248,9 @@ const ProfileItemBase = (props: ProfileItemProps) => {
   const hasHome = !!itemData.home // only subscription url has home page
 
   const { upload = 0, download = 0, total = 0 } = extra ?? {}
-  const from = parseUrl(itemData.url!)
   const description = itemData.desc
-  const expire = parseExpire(extra?.expire)
-  const progress = Math.min(
-    Math.round(((download + upload) * 100) / (total + 0.01)) + 1,
-    100,
-  )
+  const used = upload + download
+  const progress = total > 0 ? Math.min((used * 100) / total, 100) : 0
 
   const loading = loadingCache.has(itemData.uid!)
 
@@ -584,13 +583,6 @@ const ProfileItemBase = (props: ProfileItemProps) => {
     },
   ]
 
-  const boxStyle = {
-    height: 26,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  }
-
   const handleSaveProfileDocument = useLockFn(async () => {
     const currentValue = profileDocument.value
     const result = await mutate(() => saveProfileFile(uid!, currentValue), {
@@ -680,166 +672,167 @@ const ProfileItemBase = (props: ProfileItemProps) => {
             />
           </Box>
         )}
-        <Box sx={{ position: 'relative' }}>
-          <Box sx={{ display: 'flex', justifyContent: 'start' }}>
-            {batchMode && (
-              <IconButton
-                size="small"
-                sx={{ padding: '2px', marginRight: '4px', marginLeft: '-8px' }}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  if (onSelectionChange) {
-                    onSelectionChange()
-                  }
-                }}
-              >
-                {isSelected ? (
-                  <CheckBoxRounded color="primary" />
-                ) : (
-                  <CheckBoxOutlineBlankRounded />
-                )}
-              </IconButton>
-            )}
-            <Box
-              ref={handleRef}
-              sx={{
-                display: 'flex',
-                margin: 'auto 0',
-                ...(batchMode && { marginLeft: '-4px' }),
+        <Box className="subscription-header">
+          {batchMode && (
+            <IconButton
+              size="small"
+              aria-label={t('profiles.components.menu.select')}
+              onClick={(event) => {
+                event.stopPropagation()
+                onSelectionChange?.()
               }}
             >
-              <DragIndicatorRounded
-                sx={[
-                  { cursor: 'move', marginLeft: '-6px' },
-                  ({ palette: { text } }) => {
-                    return { color: text.primary }
-                  },
-                ]}
-              />
-            </Box>
-
+              {isSelected ? (
+                <CheckBoxRounded color="primary" />
+              ) : (
+                <CheckBoxOutlineBlankRounded />
+              )}
+            </IconButton>
+          )}
+          <IconButton
+            ref={handleRef}
+            size="small"
+            className="subscription-drag-handle"
+            aria-label={t('profiles.components.profileItem.labels.reorder')}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <DragIndicatorRounded fontSize="small" />
+          </IconButton>
+          <Box className="subscription-name">
             <Typography
-              sx={{
-                width: batchMode ? 'calc(100% - 56px)' : 'calc(100% - 36px)',
-                fontSize: '18px',
-                fontWeight: '600',
-                lineHeight: '26px',
-              }}
               variant="h6"
               component="h2"
               noWrap
-              title={name!}
+              title={name ?? undefined}
             >
               {name}
             </Typography>
+            {selected && (
+              <Chip
+                size="small"
+                label={t('layout.redesign.inUse')}
+                sx={{
+                  color: 'success.main',
+                  bgcolor: 'action.selected',
+                  flexShrink: 0,
+                }}
+              />
+            )}
           </Box>
-
-          {hasUrl && (
-            <IconButton
-              title={t('shared.actions.refresh')}
-              sx={{
-                position: 'absolute',
-                p: '3px',
-                top: -1,
-                right: -5,
-                animation: loading ? `1s linear infinite ${round}` : 'none',
-              }}
-              size="small"
-              color="inherit"
-              disabled={loading}
-              onClick={(e) => {
-                e.stopPropagation()
-                if (activating || loading) {
-                  return
-                }
-                onUpdate(1)
-              }}
-            >
-              <RefreshRounded color="inherit" />
-            </IconButton>
-          )}
-        </Box>
-        <Box sx={boxStyle}>
-          {
-            <>
-              {description ? (
-                <Typography
-                  noWrap
-                  title={description}
-                  sx={{ fontSize: '14px' }}
-                >
-                  {description}
-                </Typography>
-              ) : (
-                hasUrl && (
-                  <Typography
-                    noWrap
-                    title={`${t('shared.labels.from')} ${from}`}
-                  >
-                    {from}
-                  </Typography>
-                )
-              )}
-              {hasUrl && (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'flex-end',
-                    ml: 'auto',
+          <Box className="subscription-actions">
+            {!selected && !batchMode && (
+              <Button
+                size="small"
+                disabled={activating}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  onSelect(false)
+                }}
+              >
+                {t('profiles.components.profileItem.labels.use')}
+              </Button>
+            )}
+            {hasUrl && (
+              <Box className="subscription-refresh">
+                <IconButton
+                  aria-label={t('shared.actions.refresh')}
+                  title={t('shared.actions.refresh')}
+                  size="small"
+                  disabled={loading || activating}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    void onUpdate(1)
                   }}
                 >
-                  <Typography
-                    noWrap
-                    component="span"
+                  <RefreshRounded
+                    sx={{
+                      animation: loading
+                        ? `1s linear infinite ${round}`
+                        : 'none',
+                    }}
+                  />
+                </IconButton>
+                {hasUrl && (updated > 0 || showNextUpdate) && (
+                  <Button
+                    className="subscription-update-time"
+                    size="small"
                     title={
                       showNextUpdate
                         ? t('profiles.components.profileItem.tooltips.showLast')
-                        : `${t('shared.labels.updateTime')}: ${parseExpire(updated!)}\n${t('profiles.components.profileItem.tooltips.showNext')}`
+                        : `${t('shared.labels.updateTime')}: ${parseExpire(updated)}\n${t('profiles.components.profileItem.tooltips.showNext')}`
                     }
-                    sx={{
-                      fontSize: 14,
-                      textAlign: 'right',
-                      cursor: 'pointer',
-                      display: 'inline-block',
-                      borderBottom: '1px dashed transparent',
-                      transition: 'all 0.2s',
-                      '&:hover': {
-                        borderBottomColor: 'primary.main',
-                        color: 'primary.main',
-                      },
-                    }}
                     onClick={toggleUpdateTimeDisplay}
                   >
                     {showNextUpdate
                       ? nextUpdateTime
-                      : updated! > 0
-                        ? dayjs(updated! * 1000).fromNow()
-                        : ''}
-                  </Typography>
-                </Box>
-              )}
-            </>
-          }
-        </Box>
-        {hasExtra ? (
-          <Box sx={{ ...boxStyle, fontSize: 14 }}>
-            <span title={t('shared.labels.usedTotal')}>
-              {parseTraffic(upload + download)} / {parseTraffic(total)}
-            </span>
-            <span title={t('shared.labels.expireTime')}>{expire}</span>
+                      : dayjs(updated * 1000).fromNow()}
+                  </Button>
+                )}
+              </Box>
+            )}
+            <IconButton
+              aria-label={t('layout.redesign.moreTools')}
+              size="small"
+              onClick={(event) => {
+                event.stopPropagation()
+                setPosition({ top: event.clientY, left: event.clientX })
+                setAnchorEl(event.currentTarget)
+              }}
+            >
+              <MoreHorizRounded />
+            </IconButton>
           </Box>
-        ) : (
-          <Box sx={{ ...boxStyle, fontSize: 12, justifyContent: 'flex-end' }}>
-            <span title={t('shared.labels.updateTime')}>
-              {parseExpire(updated!)}
-            </span>
+        </Box>
+        {description && (
+          <Typography
+            className="subscription-description"
+            variant="body2"
+            noWrap
+            title={description}
+          >
+            {description}
+          </Typography>
+        )}
+        {hasExtra && (
+          <Box className="subscription-usage">
+            <Box className="subscription-usage-labels">
+              <Typography variant="body2">
+                {t('profiles.components.profileItem.labels.usage', {
+                  used: parseTraffic(used).join(' '),
+                  total:
+                    total > 0
+                      ? parseTraffic(total).join(' ')
+                      : t('layout.redesign.noTrafficLimit'),
+                })}
+              </Typography>
+            </Box>
+            {total > 0 && (
+              <LinearProgress
+                variant="determinate"
+                value={progress}
+                color={
+                  progress >= 90
+                    ? 'error'
+                    : progress >= 70
+                      ? 'warning'
+                      : 'success'
+                }
+                aria-label={t('shared.labels.usedTotal')}
+              />
+            )}
           </Box>
         )}
-        <LinearProgress
-          variant="determinate"
-          value={progress}
-          style={{ opacity: total > 0 ? 1 : 0 }}
-        />
+        {(extra?.expire ?? 0) > 0 && (
+          <Box className="subscription-footer">
+            {(extra?.expire ?? 0) > 0 && (
+              <Typography variant="caption">
+                {t('profiles.components.profileItem.labels.expires', {
+                  date: parseExpire(extra?.expire),
+                })}
+              </Typography>
+            )}
+          </Box>
+        )}
       </ProfileBox>
 
       <Menu
@@ -985,11 +978,6 @@ const ProfileItemBase = (props: ProfileItemProps) => {
 }
 
 export const ProfileItem = memo(ProfileItemBase)
-
-function parseUrl(url?: string) {
-  if (!url) return ''
-  return isValidUrl(url) ? new URL(url).host : 'local file'
-}
 
 function parseExpire(expire?: number) {
   if (!expire) return '-'

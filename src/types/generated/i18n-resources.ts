@@ -253,6 +253,48 @@ export interface TranslationResources {
           restartCoreStopFailed: string
         }
       }
+      redesign: {
+        about: string
+        addSubscription: string
+        advanced: string
+        advancedDescription: string
+        backToSettings: string
+        checkUpdate: string
+        chooseNode: string
+        coreRunning: string
+        coreStopped: string
+        currentSubscription: string
+        detailedOverview: string
+        diagnostics: string
+        diagnosticsDescription: string
+        download: string
+        general: string
+        inUse: string
+        loadFailed: string
+        loading: string
+        manageSubscriptions: string
+        moreTools: string
+        networkTools: string
+        nodeCount: string
+        nodesDescription: string
+        nodesHint: string
+        noMatches: string
+        noNodes: string
+        noSubscription: string
+        noTrafficLimit: string
+        overviewDescription: string
+        proxyDescription: string
+        proxyDisabled: string
+        proxyEnabled: string
+        proxyGroup: string
+        retry: string
+        searchNodes: string
+        settingsDescription: string
+        subscriptionDescription: string
+        testLatency: string
+        upload: string
+        uptime: string
+      }
     }
     logs: {
       actions: {
@@ -299,6 +341,14 @@ export interface TranslationResources {
           }
         }
         profileItem: {
+          labels: {
+            expires: string
+            remaining: string
+            reorder: string
+            updated: string
+            usage: string
+            use: string
+          }
           status: {
             autoUpdateDisabled: string
             lastUpdateFailed: string

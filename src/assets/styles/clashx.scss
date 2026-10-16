@@ -1,0 +1,103 @@
+.layout {
+  .layout-content__left { flex: 0 0 184px; width: 184px; background: var(--sidebar-color); padding: 12px 12px 22px; }
+  .layout-content__left .the-logo { flex: 0 0 84px; height: 84px; margin: 0; padding: 8px 12px 24px; }
+  .layout-content__left .the-logo > div { display: flex; align-items: center; justify-content: flex-start !important; gap: 10px; }
+  .clashx-brand-mark { width: 30px; height: 30px; flex: 0 0 30px; display: block; border-radius: 50%; }
+  .layout-content__left .the-menu { flex: 1 1 auto; padding: 0; }
+  .layout-content__left .the-menu .MuiListItemButton-root { min-height: 46px; margin: 0; padding: 8px 14px; }
+  .layout-content__left .the-traffic { flex: 0 0 auto; border-top: 1px solid var(--divider-color); padding: 18px 12px 0; }
+  .layout-content__right { min-width: 0; }
+  .layout-content__right .the-content { top: 0; }
+  .the_titlebar { border: 0 !important; }
+}
+.base-page > header { flex-basis: 76px; padding: 12px 32px 0; border: 0; gap: 16px; }
+.base-page .base-container { min-height: 0; flex: 1; }
+.base-page .base-container > section { padding: 0 0 24px; }
+.base-page .base-container > section .base-content { width: auto; margin: 0 32px; max-width: 1100px; }
+.base-page .base-container.no-padding > section .base-content { width: 100%; margin: 0; max-width: none; }
+.page-description.MuiTypography-root { color: var(--mui-palette-text-secondary, inherit); font-size: 13px; opacity: .65; margin: 0 0 24px; }
+.clashx-panel { background: var(--surface-color); border: 1px solid var(--divider-color); border-radius: 12px; padding: 22px; margin-bottom: 20px; }
+.overview-current-proxy .enhanced-card { border: 0; background: transparent; }
+.overview-current-proxy .enhanced-card > div:first-child { border-bottom: 0; padding: 6px 0; }
+.overview-current-proxy .enhanced-card > div:first-child > div > div:first-child { display: none; }
+.overview-current-proxy .enhanced-card > div:first-child h6 { font-size: 12px; font-weight: 400; opacity: .65; }
+.overview-current-proxy .enhanced-card > div:last-child { padding: 8px 0 0; }
+.nodes-page { height: 100%; box-sizing: border-box; padding: 0 32px 24px; display: flex; flex-direction: column; }
+.nodes-page .MuiButton-root { white-space: nowrap; }
+.nodes-page .MuiTextField-root { background: var(--surface-color); border-radius: 8px; }
+.node-list .MuiListItemButton-root { height: 64px; margin: 0; border-radius: 0; border-bottom: 1px solid var(--divider-color); padding: 12px 20px; }
+.node-list .MuiListItemButton-root.Mui-selected { margin: 0; width: 100%; }
+.settings-panel { padding: 0 20px; }
+.settings-panel > .MuiListItem-root { min-height: 60px; border-bottom: 1px solid var(--divider-color); padding-left: 0; padding-right: 0; gap: 12px; }
+.settings-panel > .MuiListItem-root:last-child { border-bottom: 0; }
+.setting-group-title.MuiTypography-root { font-size: 12px; opacity: .65; margin: 24px 0 10px; }
+.clashx-accordion.MuiAccordion-root { margin-bottom: 12px; border: 1px solid var(--divider-color); border-radius: 12px !important; background: var(--surface-color); box-shadow: none; }
+.clashx-accordion.MuiAccordion-root::before { display: none; }
+.clashx-accordion .MuiAccordionSummary-root { min-height: 70px; padding: 0 20px; }
+.advanced-settings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.advanced-settings-column { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.advanced-settings-card { background: var(--surface-color); border: 1px solid var(--divider-color); border-radius: 12px; overflow: hidden; }
+.advanced-settings-card > .MuiList-root { padding: 6px 0; }
+.advanced-settings-card .MuiListSubheader-root { font-size: 14px; line-height: 40px; }
+.advanced-settings-card .MuiListItem-root { min-height: 42px; }
+.clashx-accordion.advanced-settings-accordion.Mui-expanded { background: transparent; border-width: 0; }
+.advanced-settings-accordion.Mui-expanded .MuiAccordionSummary-root { background: var(--surface-color); border: 1px solid var(--divider-color); border-radius: 12px; }
+.advanced-settings-accordion .advanced-settings-details { padding: 12px 0 0; }
+@media (max-width: 750px) {
+  .layout:not(.layout--nav-collapsed) .layout-content__left { flex-basis: 150px; width: 150px; padding-left: 8px; padding-right: 8px; }
+  .base-page > header { padding-left: 20px; padding-right: 20px; }
+  .base-page .base-container > section .base-content { margin-left: 20px; margin-right: 20px; }
+  .nodes-page { padding-left: 20px; padding-right: 20px; }
+  .advanced-settings { grid-template-columns: minmax(0, 1fr); }
+}
+
+.layout .layout-content .layout-content__left .the-logo { flex: 0 0 84px; height: 84px; margin: 0; padding: 8px 12px 24px; }
+.layout .layout-content__left .the-menu .MuiListItemButton-root { border-radius: 9px; }
+.subscriptions-page { height: 100%; box-sizing: border-box; padding: 0 32px 24px; }
+.subscription-tools { position: relative; font-size: 12px; }
+.subscription-tools > summary { cursor: pointer; padding: 8px; color: inherit; display: flex; align-items: center; justify-content: center; border-radius: 7px; list-style: none; }
+.subscription-tools > summary::-webkit-details-marker { display: none; }
+.subscription-tools > summary:hover { background: var(--divider-color); }
+.subscription-tools-popover { position: absolute; top: 100%; right: 0; width: 190px; background: var(--surface-color); border: 1px solid var(--divider-color); border-radius: 10px; padding: 12px; z-index: 10; display: flex; gap: 6px; }
+@media (max-width: 750px) { .subscriptions-page { padding-left: 20px; padding-right: 20px; } }
+
+.overview-connection { padding: 22px; }
+.layout-content__right .MuiButton-root { text-transform: none; border-radius: 7px; }
+.node-list-scroll .MuiListItemText-primary { font-size: 14px; }
+.subscriptions-page .MuiLinearProgress-root { height: 4px; border-radius: 4px; margin-top: 16px; }
+
+.subscription-header { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.subscription-name { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+.subscription-name h2 { font-size: 16px; font-weight: 600; line-height: 28px; }
+.subscription-actions { display: flex; align-items: flex-start; flex-shrink: 0; gap: 2px; }
+.subscription-drag-handle.MuiIconButton-root { flex-shrink: 0; margin-left: -8px; transition: opacity .15s; cursor: grab; }
+.subscription-description.MuiTypography-root { margin-top: 6px; padding-right: 140px; }
+.subscription-usage { margin-top: 8px; }
+.subscription-usage-labels { padding-right: 140px; min-height: 20px; }
+.subscriptions-page .subscription-usage .MuiLinearProgress-root { margin-top: 8px; }
+.subscription-footer { display: flex; align-items: center; justify-content: space-between; gap: 4px 12px; flex-wrap: wrap; margin-top: 10px; }
+.subscription-refresh { position: relative; display: flex; justify-content: center; width: 90px; }
+.subscription-refresh .subscription-update-time { position: absolute; top: 36px; left: 0; width: 100%; padding: 0; min-width: 0; color: var(--mui-palette-text-secondary, inherit); font-size: 12px; font-weight: 400; white-space: nowrap; }
+.subscription-header:has(.subscription-update-time):not(:has(~ .subscription-usage)) { margin-bottom: 28px; }
+@media (max-width: 750px) {
+  .subscription-header { gap: 4px; }
+  .subscription-name { flex-wrap: wrap; gap: 4px 8px; }
+}
+
+.node-list-scroll { background: var(--surface-color); }
+.layout .the-menu .MuiListItemText-root { min-width: 0; }
+.layout .the-menu .MuiListItemText-primary { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.base-page > header { flex: 0 0 84px; padding: 0 14px 0 32px; align-items: center; }
+.page-drag-region { flex: 1; align-self: stretch; min-width: 16px; }
+.page-window-controls { flex-shrink: 0; align-self: flex-start; margin-top: 13px; }
+.page-window-controls > .MuiBox-root { gap: 0; }
+.page-window-controls .MuiIconButton-root { width: 42px; height: 32px; border-radius: 6px; color: var(--mui-palette-text-secondary, inherit); }
+.page-toolbar { display: flex; justify-content: flex-end; padding: 0 32px 16px; flex-shrink: 0; }
+.layout .layout-content__left { padding-top: 0; border-right: 0; }
+.layout .layout-content .layout-content__left .the-logo { padding: 0 12px; }
+@media (max-width: 750px) {
+ .base-page > header { padding-left: 20px; }
+ .page-toolbar { padding-left: 20px; padding-right: 20px; }
+ .page-window-controls .MuiIconButton-root { width: 34px; }
+}
