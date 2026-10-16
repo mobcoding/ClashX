@@ -1,3 +1,9 @@
+## v1.0.7
+
+- Publish an update to validate upgrading from v1.0.6.
+
+---
+
 ## v1.0.6
 
 - Align window control icons and use diagonal expand and restore symbols.
