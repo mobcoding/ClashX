@@ -1,5 +1,6 @@
 ## v1.0.6
 
+- Align window control icons and use diagonal expand and restore symbols.
 - Restore automatic group selection after latency testing and refresh the active node.
 
 ---

@@ -1,5 +1,4 @@
-import { Close, CropSquare, FilterNone, Minimize } from '@mui/icons-material'
-import { Box, IconButton } from '@mui/material'
+import { Box, IconButton, SvgIcon } from '@mui/material'
 import {
   forwardRef,
   type PointerEvent,
@@ -20,6 +19,30 @@ const RESIZE_HANDLES = [
   { direction: 'West', position: 'west' },
   { direction: 'NorthWest', position: 'north-west' },
 ] as const
+
+const WindowControlIcon = ({
+  action,
+}: {
+  action: 'minimize' | 'maximize' | 'restore' | 'close'
+}) => (
+  <SvgIcon fontSize="inherit" viewBox="0 0 24 24">
+    <path
+      d={
+        {
+          minimize: 'M5 12h14',
+          maximize: 'M14 5h5v5M10 19H5v-5',
+          restore: 'M19 10h-5V5M5 14h5v5',
+          close: 'M6 6l12 12M18 6 6 18',
+        }[action]
+      }
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </SvgIcon>
+)
 
 export const WindowResizeHandles = () => {
   const { currentWindow, maximized } = useWindowControls()
@@ -112,21 +135,17 @@ export const WindowControls = forwardRef(function WindowControls(props, ref) {
         <>
           {/* macOS 风格：关闭 → 最小化 → 全屏 */}
           <IconButton size="small" sx={{ fontSize: 14 }} onClick={close}>
-            <Close fontSize="inherit" color="inherit" />
+            <WindowControlIcon action="close" />
           </IconButton>
           <IconButton size="small" sx={{ fontSize: 14 }} onClick={minimize}>
-            <Minimize fontSize="inherit" color="inherit" />
+            <WindowControlIcon action="minimize" />
           </IconButton>
           <IconButton
             size="small"
             sx={{ fontSize: 14 }}
             onClick={toggleMaximize}
           >
-            {maximized ? (
-              <FilterNone fontSize="inherit" color="inherit" />
-            ) : (
-              <CropSquare fontSize="inherit" color="inherit" />
-            )}
+            <WindowControlIcon action={maximized ? 'restore' : 'maximize'} />
           </IconButton>
         </>
       )}
@@ -135,25 +154,21 @@ export const WindowControls = forwardRef(function WindowControls(props, ref) {
         <>
           {/* Windows 风格：最小化 → 最大化 → 关闭 */}
           <IconButton size="small" sx={{ fontSize: 16 }} onClick={minimize}>
-            <Minimize fontSize="inherit" color="inherit" />
+            <WindowControlIcon action="minimize" />
           </IconButton>
           <IconButton
             size="small"
             sx={{ fontSize: 16 }}
             onClick={toggleMaximize}
           >
-            {maximized ? (
-              <FilterNone fontSize="inherit" color="inherit" />
-            ) : (
-              <CropSquare fontSize="inherit" color="inherit" />
-            )}
+            <WindowControlIcon action={maximized ? 'restore' : 'maximize'} />
           </IconButton>
           <IconButton
             size="small"
             sx={{ fontSize: 16, ':hover': { bgcolor: 'red', color: 'white' } }}
             onClick={close}
           >
-            <Close fontSize="inherit" color="inherit" />
+            <WindowControlIcon action="close" />
           </IconButton>
         </>
       )}
@@ -162,25 +177,21 @@ export const WindowControls = forwardRef(function WindowControls(props, ref) {
         <>
           {/* Linux 桌面常见布局（GNOME/KDE 多为：最小化 → 最大化 → 关闭） */}
           <IconButton size="small" sx={{ fontSize: 16 }} onClick={minimize}>
-            <Minimize fontSize="inherit" color="inherit" />
+            <WindowControlIcon action="minimize" />
           </IconButton>
           <IconButton
             size="small"
             sx={{ fontSize: 16 }}
             onClick={toggleMaximize}
           >
-            {maximized ? (
-              <FilterNone fontSize="inherit" color="inherit" />
-            ) : (
-              <CropSquare fontSize="inherit" color="inherit" />
-            )}
+            <WindowControlIcon action={maximized ? 'restore' : 'maximize'} />
           </IconButton>
           <IconButton
             size="small"
             sx={{ fontSize: 16, ':hover': { bgcolor: 'red', color: 'white' } }}
             onClick={close}
           >
-            <Close fontSize="inherit" color="inherit" />
+            <WindowControlIcon action="close" />
           </IconButton>
         </>
       )}
