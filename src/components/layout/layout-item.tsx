@@ -14,20 +14,16 @@ import { useVerge } from '@/hooks/use-verge'
 interface Props {
   to: string
   children: string
-  icon: ReactNode[]
+  icon: ReactNode
   sortable?: SortableItemRenderProps
 }
 export const LayoutItem = (props: Props) => {
   const { to, children, icon, sortable } = props
   const { verge } = useVerge()
-  const { menu_icon } = verge ?? {}
   const navCollapsed = verge?.collapse_navbar ?? false
   const resolved = useResolvedPath(to)
   const match = useMatch({ path: resolved.pathname, end: true })
   const navigate = useNavigate()
-
-  const effectiveMenuIcon =
-    navCollapsed && menu_icon === 'disable' ? 'monochrome' : menu_icon
 
   return (
     <ListItem
@@ -46,6 +42,7 @@ export const LayoutItem = (props: Props) => {
             paddingRight: 1,
             marginRight: 1.25,
             cursor: 'pointer',
+            columnGap: '12px',
             '& .MuiListItemText-primary': {
               color: 'text.primary',
               fontWeight: 500,
@@ -68,21 +65,20 @@ export const LayoutItem = (props: Props) => {
         aria-label={navCollapsed ? children : undefined}
         onClick={() => navigate(to)}
       >
-        {(effectiveMenuIcon === 'monochrome' || !effectiveMenuIcon) && (
-          <ListItemIcon
-            sx={{
-              color: match ? 'primary.main' : 'text.secondary',
-              minWidth: 36,
-              marginLeft: '6px',
-              cursor: 'inherit',
-            }}
-          >
-            {icon[0]}
-          </ListItemIcon>
-        )}
-        {effectiveMenuIcon === 'colorful' && (
-          <ListItemIcon sx={{ cursor: 'inherit' }}>{icon[1]}</ListItemIcon>
-        )}
+        <ListItemIcon
+          sx={{
+            color: match ? 'primary.main' : 'text.secondary',
+            width: 24,
+            minWidth: 24,
+            flexShrink: 0,
+            marginLeft: '6px',
+            alignItems: 'center',
+            justifyContent: 'center',
+            '& .MuiSvgIcon-root': { fontSize: 24 },
+          }}
+        >
+          {icon}
+        </ListItemIcon>
         <ListItemText
           sx={{
             textAlign: 'left',

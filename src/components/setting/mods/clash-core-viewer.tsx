@@ -2,14 +2,7 @@ import {
   RestartAltRounded,
   SwitchAccessShortcutRounded,
 } from '@mui/icons-material'
-import {
-  Box,
-  Button,
-  Chip,
-  List,
-  ListItem,
-  ListItemText,
-} from '@mui/material'
+import { Box, Button, Chip, List, ListItem, ListItemText } from '@mui/material'
 import { useLockFn } from 'ahooks'
 import type { Ref } from 'react'
 import { useImperativeHandle, useState } from 'react'
@@ -115,7 +108,7 @@ export function ClashCoreViewer({ ref }: { ref?: Ref<DialogRef> }) {
     >
       <List component="nav">
         <ListItem>
-          <ListItemText primary="Mihomo" secondary="/verge-mihomo" />
+          <ListItemText primary="Mihomo" secondary="/clashx-mihomo" />
           <Chip
             label={t('settings.modals.clashCore.variants.release')}
             size="small"

@@ -38,6 +38,37 @@ const fn proxy_apply_steps(sys_enabled: bool, auto_enabled: bool) -> [ProxyApply
 /// Maximum guard drain time before OS state is unknown.
 const GUARD_DRAIN_TIMEOUT: Duration = Duration::from_secs(10);
 
+fn owns_current_proxy(sys: &Sysproxy, auto: &Autoproxy) -> Result<bool> {
+    #[cfg(target_os = "macos")]
+    {
+        let snapshot = Sysproxy::snapshot()?;
+        Ok(if auto.enable {
+            snapshot.matches_pac(auto)
+        } else {
+            snapshot.matches_global(sys)
+        })
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        let current_sys = Sysproxy::get_system_proxy()?;
+        let current_auto = Autoproxy::get_auto_proxy()?;
+        Ok(proxy_target_matches(sys, auto, &current_sys, &current_auto))
+    }
+}
+
+#[cfg(any(not(target_os = "macos"), test))]
+fn proxy_target_matches(sys: &Sysproxy, auto: &Autoproxy, current_sys: &Sysproxy, current_auto: &Autoproxy) -> bool {
+    if auto.enable {
+        current_auto.enable && current_auto.url == auto.url && !current_sys.enable
+    } else {
+        sys.enable
+            && current_sys.enable
+            && current_sys.host == sys.host
+            && current_sys.port == sys.port
+            && !current_auto.enable
+    }
+}
+
 /// Authoritative OS state after a failed proxy write.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum AuthoritativeState {
@@ -414,8 +445,11 @@ impl Sysopt {
 
     /// init the sysproxy
     pub(super) async fn update_sysproxy(&self) -> Result<()> {
-        let _lock = self.update_lock.lock().await;
         let verge = Config::verge().await.latest_arc();
+        if !verge.enable_system_proxy.unwrap_or_default() {
+            return self.reset_sysproxy().await;
+        }
+        let _lock = self.update_lock.lock().await;
         // Configured, not live: this runs while the Core is being started or restarted, and
         // asking a Core that is not up yet would only fall back here anyway.
         let port = MixedPort::desired().await;
@@ -423,8 +457,7 @@ impl Sysopt {
         // 先 await, 避免持有锁导致的 Send 问题
         let bypass = get_bypass().await;
 
-        let (sys_enable, pac_enable, proxy_host, proxy_guard) = (
-            verge.enable_system_proxy.unwrap_or_default(),
+        let (pac_enable, proxy_host, proxy_guard) = (
             verge.proxy_auto_config.unwrap_or_default(),
             verge.proxy_host.as_deref().unwrap_or("127.0.0.1"),
             verge.enable_proxy_guard.unwrap_or_default(),
@@ -437,13 +470,7 @@ impl Sysopt {
             sys.bypass = bypass.into();
             auto.url = format!("http://{proxy_host}:{pac_port}/commands/pac");
 
-            // `enable_system_proxy` is the master switch.
-            // When disabled, force clear both global proxy and PAC at OS level.
-            let guard_type = if !sys_enable {
-                sys.enable = false;
-                auto.enable = false;
-                GuardType::None
-            } else if pac_enable {
+            let guard_type = if pac_enable {
                 sys.enable = false;
                 auto.enable = true;
                 if proxy_guard {
@@ -543,19 +570,28 @@ impl Sysopt {
         let _guard_operation = self.guard_operation_lock.lock().await;
         let drained = self.stop_proxy_guard_locked().await;
 
-        // 直接关闭所有代理
+        let previous = self.inner_proxy.read().clone();
+        if !previous.0.enable && !previous.1.enable {
+            return Ok(());
+        }
+        let still_owned = tokio::task::spawn_blocking(move || owns_current_proxy(&previous.0, &previous.1)).await??;
         let (sys, auto) = {
-            let (sys, auto) = &mut *self.inner_proxy.write();
+            let (mut sys, mut auto) = self.inner_proxy.read().clone();
             sys.enable = false;
             auto.enable = false;
-            (sys.clone(), auto.clone())
+            (sys, auto)
         };
+        if !still_owned {
+            *self.inner_proxy.write() = (sys, auto);
+            return Ok(());
+        }
 
         // The match is trustworthy only after the guard drained.
         if cfg!(target_os = "macos")
             && drained
             && current_os_proxy_state(sys.clone(), auto.clone()).await == OsProxyState::AlreadyApplied
         {
+            *self.inner_proxy.write() = (sys, auto);
             return Ok(());
         }
 
@@ -564,7 +600,9 @@ impl Sysopt {
             || disable_all_proxies(sys.clone(), auto.clone()),
             || self.stop_proxy_guard_locked(),
         )
-        .await
+        .await?;
+        *self.inner_proxy.write() = (sys, auto);
+        Ok(())
     }
 }
 
@@ -579,6 +617,44 @@ mod tests {
     use parking_lot::Mutex;
     use std::collections::VecDeque;
     use sysproxy::{Autoproxy, Sysproxy};
+
+    #[test]
+    fn proxy_cleanup_preserves_another_applications_target() {
+        let ours = Sysproxy {
+            enable: true,
+            host: "127.0.0.1".into(),
+            port: 17897,
+            ..Default::default()
+        };
+        let foreign = Sysproxy {
+            port: 7897,
+            ..ours.clone()
+        };
+        let off = Autoproxy::default();
+        assert!(super::proxy_target_matches(&ours, &off, &ours, &off));
+        assert!(!super::proxy_target_matches(&ours, &off, &foreign, &off));
+        assert!(!super::proxy_target_matches(&Sysproxy::default(), &off, &foreign, &off));
+        let pac = Autoproxy {
+            enable: true,
+            url: "http://127.0.0.1:12345/commands/pac".into(),
+        };
+        let other_pac = Autoproxy {
+            url: "http://127.0.0.1:33211/commands/pac".into(),
+            enable: true,
+        };
+        assert!(super::proxy_target_matches(
+            &Sysproxy::default(),
+            &pac,
+            &Sysproxy::default(),
+            &pac
+        ));
+        assert!(!super::proxy_target_matches(
+            &Sysproxy::default(),
+            &pac,
+            &Sysproxy::default(),
+            &other_pac
+        ));
+    }
 
     #[cfg(target_os = "macos")]
     use super::skip_without_network_service;

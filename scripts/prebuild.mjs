@@ -221,8 +221,8 @@ function clashMeta() {
   const isWin = platform === 'win32'
   const urlExt = isWin ? 'zip' : 'gz'
   return {
-    name: 'verge-mihomo',
-    targetFile: `verge-mihomo-${SIDECAR_HOST}${isWin ? '.exe' : ''}`,
+    name: 'clashx-mihomo',
+    targetFile: `clashx-mihomo-${SIDECAR_HOST}${isWin ? '.exe' : ''}`,
     exeFile: `${name}${isWin ? '.exe' : ''}`,
     zipFile: `${name}-${META_VERSION}.${urlExt}`,
     downloadURL: `${META_URL_PREFIX}/${META_VERSION}/${name}-${META_VERSION}.${urlExt}`,
@@ -442,9 +442,9 @@ const resolvePlugin = async () => {
 // Service executable permissions
 const resolveServicePermission = async () => {
   const serviceExecutables = [
-    'clash-verge-service*',
-    'clash-verge-service-install*',
-    'clash-verge-service-uninstall*',
+    'clashx-service*',
+    'clashx-service-install*',
+    'clashx-service-uninstall*',
   ]
   const hashCache = await loadHashCache()
   let hasChanges = false
@@ -477,9 +477,9 @@ const resolveServicePermission = async () => {
 
 // Other resources
 const SERVICE_BINARIES = [
-  'clash-verge-service',
-  'clash-verge-service-install',
-  'clash-verge-service-uninstall',
+  'clashx-service',
+  'clashx-service-install',
+  'clashx-service-uninstall',
 ]
 
 function serviceFileInfo(name) {
@@ -535,9 +535,15 @@ async function resolveServiceBundle() {
         '--target',
         SIDECAR_HOST,
         '--release',
+        '--locked',
         '--features',
         'standalone,client',
-        '--bins',
+        '--bin',
+        'clashx-service',
+        '--bin',
+        'clashx-service-install',
+        '--bin',
+        'clashx-service-uninstall',
       ],
       { stdio: 'inherit' },
     )
@@ -550,6 +556,16 @@ async function resolveServiceBundle() {
       if (platform !== 'win32') await fsp.chmod(targetPath, 0o755)
       await updateHashCache(targetPath)
     }
+    for (const name of [
+      'clash-verge-service',
+      'clash-verge-service-install',
+      'clash-verge-service-uninstall',
+    ]) {
+      await fsp.rm(
+        path.join(SERVICE_DIR, `${name}${platform === 'win32' ? '.exe' : ''}`),
+        { force: true },
+      )
+    }
     return
   }
   const { archiveFile, downloadURL } = resolveServiceRelease(
@@ -557,7 +573,7 @@ async function resolveServiceBundle() {
     SIDECAR_HOST,
     platform,
   )
-  const tempDir = path.join(TEMP_DIR, 'clash-verge-service-ipc')
+  const tempDir = path.join(TEMP_DIR, 'clashx-service-ipc')
   const tempArchive = path.join(tempDir, archiveFile)
 
   await fsp.mkdir(tempDir, { recursive: true })
@@ -572,7 +588,7 @@ async function resolveServiceBundle() {
         .getEntries()
         .forEach(
           (entry) =>
-            void log_debug('"clash-verge-service-ipc" entry:', entry.entryName),
+            void log_debug('"clashx-service-ipc" entry:', entry.entryName),
         )
       zip.extractAllTo(tempDir, true)
     } else {
@@ -609,7 +625,7 @@ const CORE_HASHES_NSH = path.join(
 )
 async function resolveCoreHashes() {
   const lines = []
-  for (const [define, name] of [['MIHOMO_SHA256', 'verge-mihomo']]) {
+  for (const [define, name] of [['MIHOMO_SHA256', 'clashx-mihomo']]) {
     const sidecar = path.join(SIDECAR_DIR, `${name}-${SIDECAR_HOST}.exe`)
     const digest = createHash('sha256')
       .update(await fsp.readFile(sidecar))
@@ -659,7 +675,7 @@ const resolveUnSetDnsScript = () =>
 
 const tasks = [
   {
-    name: 'verge-mihomo',
+    name: 'clashx-mihomo',
     func: () =>
       getLatestReleaseVersion().then(() => resolveSidecar(clashMeta())),
     retry: 5,

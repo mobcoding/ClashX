@@ -337,31 +337,6 @@ export const LayoutViewer = forwardRef<DialogRef>((_, ref) => {
 
         <Item>
           <ListItemText
-            primary={t('settings.components.verge.layout.fields.navIcon')}
-          />
-          <GuardState
-            value={verge?.menu_icon ?? 'monochrome'}
-            onCatch={onError}
-            onFormat={(e: any) => e.target.value}
-            onChange={(value) => onChangeData({ menu_icon: value })}
-            onGuard={(value) => patchVerge({ menu_icon: value })}
-          >
-            <Select size="small" sx={{ width: 140, '> div': { py: '7.5px' } }}>
-              <MenuItem value="monochrome">
-                {t('settings.components.verge.layout.options.icon.monochrome')}
-              </MenuItem>
-              <MenuItem value="colorful">
-                {t('settings.components.verge.layout.options.icon.colorful')}
-              </MenuItem>
-              <MenuItem value="disable">
-                {t('settings.components.verge.layout.options.icon.disable')}
-              </MenuItem>
-            </Select>
-          </GuardState>
-        </Item>
-
-        <Item>
-          <ListItemText
             primary={t(
               'settings.components.verge.layout.fields.collapseNavBar',
             )}

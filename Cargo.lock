@@ -1088,7 +1088,110 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c8d4a3bb8b1e0c1050499d1815f5ab16d04f0959b233085fb31653fbfc9d98f9"
 
 [[package]]
-name = "clash-verge"
+name = "clash-verge-draft"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "criterion",
+ "parking_lot",
+ "tokio",
+]
+
+[[package]]
+name = "clash-verge-i18n"
+version = "0.1.0"
+dependencies = [
+ "rust-i18n",
+ "sys-locale",
+]
+
+[[package]]
+name = "clash-verge-limiter"
+version = "0.1.0"
+
+[[package]]
+name = "clash-verge-logging"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "flexi_logger",
+ "log",
+ "parking_lot",
+ "tracing-estuary",
+]
+
+[[package]]
+name = "clash-verge-media-unlock"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "clash-verge-logging",
+ "log",
+ "reqwest 0.13.5",
+ "rust_iso3166",
+ "serde",
+ "serde_json",
+ "specta",
+ "tokio",
+]
+
+[[package]]
+name = "clash-verge-signal"
+version = "0.1.0"
+dependencies = [
+ "clash-verge-logging",
+ "log",
+ "tokio",
+]
+
+[[package]]
+name = "clash_verge_service_ipc"
+version = "2.7.6"
+dependencies = [
+ "anyhow",
+ "kode-bridge",
+ "libc",
+ "log",
+ "once_cell",
+ "serde",
+ "serde_json",
+ "sha2 0.11.0",
+ "strum",
+ "strum_macros",
+ "sysproxy",
+ "tokio",
+ "url",
+ "windows-service",
+ "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "clashcore"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "facfbc410a385e0b0cbca8179dd9e363ed70e8455960bf7545137e90ca753b66"
+dependencies = [
+ "crossbeam-utils",
+ "lock_api",
+ "parking_lot_core",
+ "polonius-the-crab",
+]
+
+[[package]]
+name = "clashmap"
+version = "1.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e195164ef44aa7de78676cce561134365dec78761db2959e55d22bb8d4ffce16"
+dependencies = [
+ "clashcore",
+ "crossbeam-utils",
+ "hashbrown 0.15.5",
+ "polonius-the-crab",
+ "replace_with",
+]
+
+[[package]]
+name = "clashx"
 version = "1.0.5"
 dependencies = [
  "aes-gcm",
@@ -1176,110 +1279,6 @@ dependencies = [
  "windows-sys 0.61.2",
  "winreg 0.56.0",
  "zip 9.0.1",
-]
-
-[[package]]
-name = "clash-verge-draft"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "criterion",
- "parking_lot",
- "tokio",
-]
-
-[[package]]
-name = "clash-verge-i18n"
-version = "0.1.0"
-dependencies = [
- "rust-i18n",
- "sys-locale",
-]
-
-[[package]]
-name = "clash-verge-limiter"
-version = "0.1.0"
-
-[[package]]
-name = "clash-verge-logging"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "flexi_logger",
- "log",
- "parking_lot",
- "tracing-estuary",
-]
-
-[[package]]
-name = "clash-verge-media-unlock"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "clash-verge-logging",
- "log",
- "reqwest 0.13.5",
- "rust_iso3166",
- "serde",
- "serde_json",
- "specta",
- "tokio",
-]
-
-[[package]]
-name = "clash-verge-signal"
-version = "0.1.0"
-dependencies = [
- "clash-verge-logging",
- "log",
- "tokio",
-]
-
-[[package]]
-name = "clash_verge_service_ipc"
-version = "2.7.6"
-source = "git+https://github.com/clash-verge-rev/clash-verge-service-ipc.git?tag=v2.7.6#b2a7427d6681c8d3780ab83a73f4dc21da2f22d6"
-dependencies = [
- "anyhow",
- "kode-bridge",
- "libc",
- "log",
- "once_cell",
- "serde",
- "serde_json",
- "sha2 0.11.0",
- "strum",
- "strum_macros",
- "sysproxy",
- "tokio",
- "url",
- "windows-service",
- "windows-sys 0.61.2",
-]
-
-[[package]]
-name = "clashcore"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "facfbc410a385e0b0cbca8179dd9e363ed70e8455960bf7545137e90ca753b66"
-dependencies = [
- "crossbeam-utils",
- "lock_api",
- "parking_lot_core",
- "polonius-the-crab",
-]
-
-[[package]]
-name = "clashmap"
-version = "1.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e195164ef44aa7de78676cce561134365dec78761db2959e55d22bb8d4ffce16"
-dependencies = [
- "clashcore",
- "crossbeam-utils",
- "hashbrown 0.15.5",
- "polonius-the-crab",
- "replace_with",
 ]
 
 [[package]]

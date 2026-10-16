@@ -265,7 +265,7 @@ pub struct IVergeTheme {
 }
 
 impl IVerge {
-    pub const VALID_CLASH_CORES: &'static [&'static str] = &["verge-mihomo"];
+    pub const VALID_CLASH_CORES: &'static [&'static str] = &["clashx-mihomo"];
 
     pub async fn validate_and_fix_config() -> Result<()> {
         let config_path = dirs::verge_path()?;
@@ -282,19 +282,19 @@ impl IVerge {
                 logging!(
                     warn,
                     Type::Config,
-                    "启动时发现无效的clash_core配置: '{}', 将自动修正为 'verge-mihomo'",
+                    "启动时发现无效的clash_core配置: '{}', 将自动修正为 'clashx-mihomo'",
                     core
                 );
-                config.clash_core = Some("verge-mihomo".into());
+                config.clash_core = Some("clashx-mihomo".into());
                 needs_fix = true;
             }
         } else {
             logging!(
                 info,
                 Type::Config,
-                "启动时发现未配置clash_core, 将设置为默认值 'verge-mihomo'"
+                "启动时发现未配置clash_core, 将设置为默认值 'clashx-mihomo'"
             );
-            config.clash_core = Some("verge-mihomo".into());
+            config.clash_core = Some("clashx-mihomo".into());
             needs_fix = true;
         }
 
@@ -331,7 +331,7 @@ impl IVerge {
             .as_ref()
             .filter(|core| Self::VALID_CLASH_CORES.contains(&core.as_str()))
             .cloned()
-            .unwrap_or_else(|| "verge-mihomo".into())
+            .unwrap_or_else(|| "clashx-mihomo".into())
     }
 
     pub async fn new() -> Self {
@@ -362,7 +362,7 @@ impl IVerge {
             app_log_level: Some("silent".into()),
             app_log_max_size: Some(128),
             app_log_max_count: Some(8),
-            clash_core: Some("verge-mihomo".into()),
+            clash_core: Some("clashx-mihomo".into()),
             language: Some(clash_verge_i18n::system_language().into()),
             theme_mode: Some("system".into()),
             #[cfg(not(target_os = "windows"))]

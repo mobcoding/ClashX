@@ -8,15 +8,6 @@ import SubjectOutlinedIcon from '@mui/icons-material/SubjectOutlined'
 import WifiOutlinedIcon from '@mui/icons-material/WifiOutlined'
 import { type ComponentType, type ReactNode } from 'react'
 
-import ConnectionsSvg from '@/assets/image/itemicon/connections.svg?react'
-import HomeSvg from '@/assets/image/itemicon/home.svg?react'
-import LogsSvg from '@/assets/image/itemicon/logs.svg?react'
-import ProfilesSvg from '@/assets/image/itemicon/profiles.svg?react'
-import ProxiesSvg from '@/assets/image/itemicon/proxies.svg?react'
-import RulesSvg from '@/assets/image/itemicon/rules.svg?react'
-import SettingsSvg from '@/assets/image/itemicon/settings.svg?react'
-import UnlockSvg from '@/assets/image/itemicon/unlock.svg?react'
-
 import { navigationItems } from './_navigation-meta'
 import ConnectionsPage from './connections'
 import HomePage from './home'
@@ -32,7 +23,7 @@ import UnlockPage from './unlock'
 type NavigationItem = {
   label: (typeof navigationItems)[keyof typeof navigationItems]['label']
   path: string
-  icon: ReactNode[]
+  icon: ReactNode
   Component: ComponentType
 }
 
@@ -40,53 +31,53 @@ export const navItems: NavigationItem[] = [
   {
     label: navigationItems.home.label,
     path: '/diagnostics/overview',
-    icon: [],
+    icon: null,
     Component: HomeDiagnostics,
   },
   {
     label: navigationItems.proxies.label,
     path: '/diagnostics/proxies',
-    icon: [],
+    icon: null,
     Component: ProxyPage,
   },
   {
     ...navigationItems.home,
-    icon: [<HomeOutlinedIcon key="mui" />, <HomeSvg key="svg" />],
+    icon: <HomeOutlinedIcon />,
     Component: HomePage,
   },
   {
     ...navigationItems.proxies,
-    icon: [<WifiOutlinedIcon key="mui" />, <ProxiesSvg key="svg" />],
+    icon: <WifiOutlinedIcon />,
     Component: NodesPage,
   },
   {
     ...navigationItems.profiles,
-    icon: [<DnsOutlinedIcon key="mui" />, <ProfilesSvg key="svg" />],
+    icon: <DnsOutlinedIcon />,
     Component: ProfilePage,
   },
   {
     ...navigationItems.connections,
-    icon: [<LanguageOutlinedIcon key="mui" />, <ConnectionsSvg key="svg" />],
+    icon: <LanguageOutlinedIcon />,
     Component: ConnectionsPage,
   },
   {
     ...navigationItems.rules,
-    icon: [<ForkRightOutlinedIcon key="mui" />, <RulesSvg key="svg" />],
+    icon: <ForkRightOutlinedIcon />,
     Component: RulesPage,
   },
   {
     ...navigationItems.logs,
-    icon: [<SubjectOutlinedIcon key="mui" />, <LogsSvg key="svg" />],
+    icon: <SubjectOutlinedIcon />,
     Component: LogsPage,
   },
   {
     ...navigationItems.unlock,
-    icon: [<LockOpenOutlinedIcon key="mui" />, <UnlockSvg key="svg" />],
+    icon: <LockOpenOutlinedIcon />,
     Component: UnlockPage,
   },
   {
     ...navigationItems.settings,
-    icon: [<SettingsOutlinedIcon key="mui" />, <SettingsSvg key="svg" />],
+    icon: <SettingsOutlinedIcon />,
     Component: SettingPage,
   },
 ]

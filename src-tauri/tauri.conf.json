@@ -13,7 +13,7 @@
     ],
     "resources": ["resources"],
     "publisher": "ClashX",
-    "externalBin": ["sidecar/verge-mihomo"],
+    "externalBin": ["sidecar/clashx-mihomo"],
     "copyright": "GNU General Public License v3.0",
     "category": "DeveloperTool",
     "shortDescription": "ClashX",
@@ -27,7 +27,7 @@
     "removeUnusedCommands": true
   },
   "productName": "ClashX",
-  "identifier": "io.github.clash-verge-rev.clash-verge-rev",
+  "identifier": "io.github.mobcoding.clashx",
   "plugins": {
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEI1NTI2MzlEMTc2NjhCRkUKUldUK2kyWVhuV05TdFpjQUhsSjF0M2V2VjQ1MDl4bFZPUzY0RnVkWWtkR0VNR1AxQjJETEFRb3QK",
@@ -40,7 +40,7 @@
     },
     "deep-link": {
       "desktop": {
-        "schemes": ["clash", "clash-verge"]
+        "schemes": ["clashx"]
       }
     }
   },
