@@ -1,3 +1,9 @@
+## v1.0.9
+
+- Let overview and settings fill the available width when the window is maximized.
+
+---
+
 ## v1.0.8
 
 - Improve tray icon clarity at small sizes and preserve proxy status markers.

@@ -1,6 +1,6 @@
 [package]
 name = "clashx"
-version = "1.0.8"
+version = "1.0.9"
 description = "ClashX"
 authors = ["zzzgydi", "Tunglies", "wonfen", "MystiPanda"]
 license = "GPL-3.0-only"

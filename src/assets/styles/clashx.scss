@@ -13,7 +13,7 @@
 .base-page > header { flex-basis: 76px; padding: 12px 32px 0; border: 0; gap: 16px; }
 .base-page .base-container { min-height: 0; flex: 1; }
 .base-page .base-container > section { padding: 0 0 24px; }
-.base-page .base-container > section .base-content { width: auto; margin: 0 32px; max-width: 1100px; }
+.base-page .base-container > section .base-content { width: auto; margin: 0 32px; max-width: none; }
 .base-page .base-container.no-padding > section .base-content { width: 100%; margin: 0; max-width: none; }
 .clashx-panel { background: var(--surface-color); border: 1px solid var(--divider-color); border-radius: 12px; padding: 22px; margin-bottom: 20px; }
 .overview-current-proxy .enhanced-card { border: 0; background: transparent; }
