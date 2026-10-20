@@ -1,3 +1,9 @@
+## v1.0.8
+
+- Improve tray icon clarity at small sizes and preserve proxy status markers.
+
+---
+
 ## v1.0.7
 
 - Publish an update to validate upgrading from v1.0.6.
