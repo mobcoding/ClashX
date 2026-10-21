@@ -1,6 +1,7 @@
 ## Unreleased
 
 - Keep the sidebar status in sync with the system proxy switch and update the current proxy session time every second.
+- Match the running status light's breathing cycle to the one-second timer refresh.
 
 ---
 
