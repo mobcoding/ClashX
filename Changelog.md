@@ -1,14 +1,9 @@
-## Unreleased
+## v1.0.9
 
 - Keep the sidebar status in sync with the system proxy switch and update the current proxy session time every second.
 - Match the running status light's breathing cycle to the one-second timer refresh.
 
----
-
-## v1.0.9
-
 - Move update notifications to a red dot beside Settings and show the available version on the settings page.
-- Show a breathing red status dot while the core is running and a static gray dot when stopped.
 - Let overview and settings fill the available width when the window is maximized.
 
 ---
