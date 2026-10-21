@@ -61,7 +61,9 @@
   "redesign": {
     "uptime": "Running {{time}}",
     "coreRunning": "Core running",
-    "coreStopped": "Core unavailable",
+    "coreStopped": "Not running",
+    "updateAvailable": "Version {{version}} available",
+    "updateNow": "Update now",
     "loading": "Loading…",
     "overviewDescription": "Your connection at a glance",
     "proxyEnabled": "System proxy is on",

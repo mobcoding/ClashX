@@ -15,10 +15,11 @@ interface Props {
   to: string
   children: string
   icon: ReactNode
+  endAdornment?: ReactNode
   sortable?: SortableItemRenderProps
 }
 export const LayoutItem = (props: Props) => {
-  const { to, children, icon, sortable } = props
+  const { to, children, icon, sortable, endAdornment } = props
   const { verge } = useVerge()
   const navCollapsed = verge?.collapse_navbar ?? false
   const resolved = useResolvedPath(to)
@@ -86,6 +87,7 @@ export const LayoutItem = (props: Props) => {
           }}
           primary={children}
         />
+        {endAdornment}
       </ListItemButton>
     </ListItem>
   )

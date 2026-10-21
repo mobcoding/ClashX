@@ -100,3 +100,12 @@
  .page-toolbar { padding-left: 20px; padding-right: 20px; }
  .page-window-controls .MuiIconButton-root { width: 34px; }
 }
+
+.core-status-dot--running { animation: core-status-breathe 2.5s ease-in-out infinite; }
+@keyframes core-status-breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .3; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .core-status-dot--running { animation: none; }
+}

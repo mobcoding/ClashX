@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 
 import appIcon from '@/assets/image/app-icon.svg'
 import { useAppUptime } from '@/hooks/use-system-state'
+import { useUpdate } from '@/hooks/use-update'
 import { useVerge } from '@/hooks/use-verge'
 import { useNavMenuOrder } from '@/pages/_layout/hooks'
 import { primaryNavItems } from '@/pages/_navigation'
@@ -13,7 +14,6 @@ import { useSystemData } from '@/providers/app-data-context'
 import { SortableItem } from '../base'
 
 import { LayoutItem } from './layout-item'
-import { UpdateButton } from './update-button'
 
 type MenuContextPosition = { top: number; left: number }
 
@@ -38,6 +38,29 @@ export const LayoutSidebar = (props: LayoutSidebarProps) => {
   const { runningMode } = useSystemData()
   const coreRunning = runningMode === 'Service' || runningMode === 'Sidecar'
   const { t } = useTranslation()
+  const { updateInfo } = useUpdate()
+  const updateIndicator = updateInfo?.available ? (
+    <Box
+      component="span"
+      role="img"
+      aria-label={t('layout.redesign.updateAvailable', {
+        version: updateInfo.version,
+      })}
+      title={t('layout.redesign.updateAvailable', {
+        version: updateInfo.version,
+      })}
+      sx={{
+        position: 'absolute',
+        right: isCollapsed ? 6 : 14,
+        top: isCollapsed ? 6 : 'calc(50% - 3px)',
+        width: 6,
+        height: 6,
+        borderRadius: '50%',
+        bgcolor: 'error.main',
+        pointerEvents: 'auto',
+      }}
+    />
+  ) : null
   const { verge, mutateVerge, patchVerge } = useVerge()
   const [menuUnlocked, setMenuUnlocked] = useState(false)
   const [menuContextPosition, setMenuContextPosition] =
@@ -114,7 +137,12 @@ export const LayoutSidebar = (props: LayoutSidebarProps) => {
     // attributes, so screen readers announce every item as a disabled draggable.
     if (!menuUnlocked) {
       return (
-        <LayoutItem key={item.path} to={item.path} icon={item.icon}>
+        <LayoutItem
+          key={item.path}
+          to={item.path}
+          icon={item.icon}
+          endAdornment={item.path === '/settings' ? updateIndicator : undefined}
+        >
           {t(item.label)}
         </LayoutItem>
       )
@@ -123,7 +151,14 @@ export const LayoutSidebar = (props: LayoutSidebarProps) => {
     return (
       <SortableItem key={item.path} id={item.path} index={index}>
         {(sortable) => (
-          <LayoutItem to={item.path} icon={item.icon} sortable={sortable}>
+          <LayoutItem
+            to={item.path}
+            icon={item.icon}
+            sortable={sortable}
+            endAdornment={
+              item.path === '/settings' ? updateIndicator : undefined
+            }
+          >
             {t(item.label)}
           </LayoutItem>
         )}
@@ -157,7 +192,6 @@ export const LayoutSidebar = (props: LayoutSidebarProps) => {
             </Typography>
           )}
         </div>
-        <UpdateButton className="the-newbtn" />
       </div>
 
       {/* Edit navigation menu badge */}
@@ -247,14 +281,28 @@ export const LayoutSidebar = (props: LayoutSidebarProps) => {
         >
           <Box
             component="span"
+            className={
+              coreRunning
+                ? 'core-status-dot core-status-dot--running'
+                : 'core-status-dot'
+            }
+            title={t(
+              coreRunning
+                ? 'layout.redesign.coreRunning'
+                : 'layout.redesign.coreStopped',
+            )}
             sx={{
               width: 6,
               height: 6,
               borderRadius: '50%',
-              bgcolor: coreRunning ? 'success.main' : 'text.disabled',
+              flexShrink: 0,
+              bgcolor: coreRunning ? 'error.main' : 'text.disabled',
             }}
           />
-          {!isCollapsed && t('layout.redesign.uptime', { time: elapsed })}
+          {!isCollapsed &&
+            (coreRunning
+              ? t('layout.redesign.uptime', { time: elapsed })
+              : t('layout.redesign.coreStopped'))}
         </Typography>
       </div>
     </div>

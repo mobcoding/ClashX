@@ -156,6 +156,8 @@ export const translationKeys = [
   'layout.redesign.uptime',
   'layout.redesign.coreRunning',
   'layout.redesign.coreStopped',
+  'layout.redesign.updateAvailable',
+  'layout.redesign.updateNow',
   'layout.redesign.loading',
   'layout.redesign.overviewDescription',
   'layout.redesign.proxyEnabled',

@@ -292,6 +292,8 @@ export interface TranslationResources {
         settingsDescription: string
         subscriptionDescription: string
         testLatency: string
+        updateAvailable: string
+        updateNow: string
         upload: string
         uptime: string
       }

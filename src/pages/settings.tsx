@@ -34,7 +34,7 @@ const SettingPage = () => {
   const navigate = useNavigate()
   const { verge, patchVerge } = useVerge()
   const updateRef = useRef<DialogRef>(null)
-  const { checkUpdate } = useUpdate(false)
+  const { checkUpdate, updateInfo } = useUpdate(false)
   const check = async () => {
     try {
       const { data } = await checkUpdate()
@@ -199,9 +199,25 @@ const SettingPage = () => {
           <Typography variant="caption" color="text.secondary">
             ClashX · {version}
           </Typography>
+          {updateInfo?.available && (
+            <Typography variant="body2" color="error.main">
+              {t('layout.redesign.updateAvailable', {
+                version: updateInfo.version,
+              })}
+            </Typography>
+          )}
         </Box>
-        <Button variant="outlined" onClick={check}>
-          {t('layout.redesign.checkUpdate')}
+        <Button
+          variant="outlined"
+          onClick={
+            updateInfo?.available ? () => updateRef.current?.open() : check
+          }
+        >
+          {t(
+            updateInfo?.available
+              ? 'layout.redesign.updateNow'
+              : 'layout.redesign.checkUpdate',
+          )}
         </Button>
       </Box>
       <UpdateViewer ref={updateRef} />
