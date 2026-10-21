@@ -1,15 +1,14 @@
 import { DragDropProvider, KeyboardSensor, PointerSensor } from '@dnd-kit/react'
 import { Box, List, Menu, MenuItem, Typography } from '@mui/material'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import appIcon from '@/assets/image/app-icon.svg'
-import { useAppUptime } from '@/hooks/use-system-state'
+import { useSystemProxyState } from '@/hooks/use-system-proxy-state'
 import { useUpdate } from '@/hooks/use-update'
 import { useVerge } from '@/hooks/use-verge'
 import { useNavMenuOrder } from '@/pages/_layout/hooks'
 import { primaryNavItems } from '@/pages/_navigation'
-import { useSystemData } from '@/providers/app-data-context'
 
 import { SortableItem } from '../base'
 
@@ -24,10 +23,18 @@ interface LayoutSidebarProps {
 
 const SENSORS = [PointerSensor, KeyboardSensor]
 
-export const LayoutSidebar = (props: LayoutSidebarProps) => {
-  const { isCollapsed } = props
-  const uptime = useAppUptime()
-  const seconds = Math.floor(uptime / 1000)
+const ProxySessionTime = () => {
+  const { t } = useTranslation()
+  const [seconds, setSeconds] = useState(0)
+
+  useEffect(() => {
+    const startedAt = performance.now()
+    const timer = window.setInterval(() => {
+      setSeconds(Math.floor((performance.now() - startedAt) / 1000))
+    }, 1000)
+    return () => window.clearInterval(timer)
+  }, [])
+
   const elapsed = [
     Math.floor(seconds / 3600),
     Math.floor((seconds % 3600) / 60),
@@ -35,8 +42,12 @@ export const LayoutSidebar = (props: LayoutSidebarProps) => {
   ]
     .map((value) => String(value).padStart(2, '0'))
     .join(':')
-  const { runningMode } = useSystemData()
-  const coreRunning = runningMode === 'Service' || runningMode === 'Sidecar'
+  return t('layout.redesign.uptime', { time: elapsed })
+}
+
+export const LayoutSidebar = (props: LayoutSidebarProps) => {
+  const { isCollapsed } = props
+  const { indicator: proxyRunning } = useSystemProxyState()
   const { t } = useTranslation()
   const { updateInfo } = useUpdate()
   const updateIndicator = updateInfo?.available ? (
@@ -282,27 +293,33 @@ export const LayoutSidebar = (props: LayoutSidebarProps) => {
           <Box
             component="span"
             className={
-              coreRunning
+              proxyRunning
                 ? 'core-status-dot core-status-dot--running'
                 : 'core-status-dot'
             }
             title={t(
-              coreRunning
-                ? 'layout.redesign.coreRunning'
-                : 'layout.redesign.coreStopped',
+              proxyRunning
+                ? 'layout.redesign.proxyEnabled'
+                : 'layout.redesign.proxyDisabled',
             )}
             sx={{
               width: 6,
               height: 6,
               borderRadius: '50%',
               flexShrink: 0,
-              bgcolor: coreRunning ? 'error.main' : 'text.disabled',
+              bgcolor: proxyRunning ? 'error.main' : 'text.disabled',
             }}
           />
-          {!isCollapsed &&
-            (coreRunning
-              ? t('layout.redesign.uptime', { time: elapsed })
-              : t('layout.redesign.coreStopped'))}
+          {proxyRunning ? (
+            <Box
+              component="span"
+              sx={{ display: isCollapsed ? 'none' : undefined }}
+            >
+              <ProxySessionTime />
+            </Box>
+          ) : (
+            !isCollapsed && t('layout.redesign.coreStopped')
+          )}
         </Typography>
       </div>
     </div>

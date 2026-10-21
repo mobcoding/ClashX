@@ -1,3 +1,9 @@
+## Unreleased
+
+- Keep the sidebar status in sync with the system proxy switch and update the current proxy session time every second.
+
+---
+
 ## v1.0.9
 
 - Move update notifications to a red dot beside Settings and show the available version on the settings page.
