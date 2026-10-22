@@ -1,3 +1,9 @@
+## v1.1.0
+
+- Remove the white circular background from the application icon and logo.
+
+---
+
 ## v1.0.9
 
 - Keep the sidebar status in sync with the system proxy switch and update the current proxy session time every second.

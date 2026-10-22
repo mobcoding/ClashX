@@ -2,7 +2,7 @@
   .layout-content__left { flex: 0 0 184px; width: 184px; background: var(--sidebar-color); padding: 12px 12px 22px; }
   .layout-content__left .the-logo { flex: 0 0 84px; height: 84px; margin: 0; padding: 8px 12px 24px; }
   .layout-content__left .the-logo > div { display: flex; align-items: center; justify-content: flex-start !important; gap: 10px; }
-  .clashx-brand-mark { width: 30px; height: 30px; flex: 0 0 30px; display: block; border-radius: 50%; }
+  .clashx-brand-mark { width: 30px; height: 30px; flex: 0 0 30px; display: block; }
   .layout-content__left .the-menu { flex: 1 1 auto; padding: 0; }
   .layout-content__left .the-menu .MuiListItemButton-root { min-height: 46px; margin: 0; padding: 8px 14px; }
   .layout-content__left .the-traffic { flex: 0 0 auto; border-top: 1px solid var(--divider-color); padding: 18px 12px 0; }
