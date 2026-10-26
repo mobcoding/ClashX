@@ -2,6 +2,7 @@ use crate::core::notify::NoticeStatus;
 mod chain;
 pub mod field;
 mod merge;
+mod node_list;
 mod script;
 pub mod seq;
 mod tun;
@@ -913,6 +914,7 @@ pub async fn enhance(
 
     let result_map = HashMap::new();
 
+    let config = node_list::use_node_list(config);
     let config = process_seq_items(config, rules_item, proxies_item, groups_item);
     let exists_keys = use_keys(&config).collect::<Vec<_>>();
     let gui_tun_keys = gui_tun_keys(&clash_config);

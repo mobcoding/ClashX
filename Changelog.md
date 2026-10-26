@@ -1,3 +1,9 @@
+## v1.1.1
+
+- Automatically display and route nodes from subscriptions that contain no proxy groups or rules.
+
+---
+
 ## v1.1.0
 
 - Remove the white circular background from the application icon and logo.
