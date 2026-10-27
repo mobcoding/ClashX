@@ -36,6 +36,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 
 import { EnhancedCard } from '@/components/home/enhanced-card'
+import { NodeBadge } from '@/components/proxy/node-badge'
 import type { ProxySortType } from '@/components/proxy/use-filter-sort'
 import { useGroupDelays } from '@/hooks/use-group-delays'
 import { useProfiles } from '@/hooks/use-profiles'
@@ -799,8 +800,8 @@ export const CurrentProxyCard = ({
   )
 
   const goToProxies = useCallback(() => {
-    navigate('/proxies')
-  }, [navigate])
+    navigate(`/proxies?group=${encodeURIComponent(selectedGroupName)}`)
+  }, [navigate, selectedGroupName])
 
   const currentMember = currentOption?.member
   const currentProxy = currentMember ? memberDetails(currentMember) : undefined
@@ -982,31 +983,55 @@ export const CurrentProxyCard = ({
 
   if (compact)
     return (
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 2,
-          py: 1,
-        }}
+      <Button
+        className="connection-node"
+        onClick={goToProxies}
+        color="inherit"
+        aria-label={t('layout.redesign.chooseNode')}
       >
-        <Box sx={{ minWidth: 0 }}>
-          <Typography variant="caption" color="text.secondary">
-            {t('home.components.currentProxy.title')}
-          </Typography>
-          <Typography sx={{ fontSize: 17, mt: 1 }} noWrap>
+        <Box className="connection-node-left">
+          <NodeBadge name={currentProxy?.name ?? selectedGroup?.now ?? ''} />
+          <Typography
+            className="connection-node-name"
+            component="span"
+            title={currentProxy?.name ?? selectedGroup?.now ?? ''}
+            noWrap
+          >
             {isCoreDataPending
               ? t('layout.redesign.loading')
               : (currentProxy?.name ??
                 selectedGroup?.now ??
                 t('home.components.currentProxy.status.noProxyNode'))}
           </Typography>
+          {!isDirectMode && currentMember && (
+            <Box
+              component="span"
+              className="connection-node-delay"
+              sx={{
+                color:
+                  delayManager.formatDelayColor(
+                    currentDelay,
+                    verge?.default_latency_timeout || DEFAULT_DELAY_TIMEOUT,
+                  ) || 'text.secondary',
+              }}
+            >
+              {delayManager.formatDelay(
+                currentDelay,
+                verge?.default_latency_timeout || DEFAULT_DELAY_TIMEOUT,
+              )}
+              {currentDelay > 0 &&
+              currentDelay <
+                (verge?.default_latency_timeout || DEFAULT_DELAY_TIMEOUT)
+                ? ' ms'
+                : ''}
+            </Box>
+          )}
         </Box>
-        <Button size="small" endIcon={<ChevronRight />} onClick={goToProxies}>
-          {t('layout.redesign.chooseNode')}
-        </Button>
-      </Box>
+        <Box component="span" className="connection-node-change">
+          {t('layout.redesign.changeNode')}
+          <ChevronRight fontSize="inherit" />
+        </Box>
+      </Button>
     )
 
   return (

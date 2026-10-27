@@ -9,7 +9,6 @@ import {
 import {
   Box,
   Button,
-  Chip,
   CircularProgress,
   IconButton,
   keyframes,
@@ -110,6 +109,7 @@ const ProfileItemBase = (props: ProfileItemProps) => {
 
   const { t } = useTranslation()
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+  const [advancedMenu, setAdvancedMenu] = useState(false)
   const [position, setPosition] = useState({ left: 0, top: 0 })
   const loadingCache = useProfileLoadingCache()
   const setProfileLoading = useSetProfileLoading()
@@ -643,6 +643,7 @@ const ProfileItemBase = (props: ProfileItemProps) => {
           onSelect(false)
         }}
         onContextMenu={(event) => {
+          setAdvancedMenu(false)
           const { clientX, clientY } = event
           setPosition({ top: clientY, left: clientX })
           setAnchorEl(event.currentTarget as HTMLElement)
@@ -708,15 +709,22 @@ const ProfileItemBase = (props: ProfileItemProps) => {
               {name}
             </Typography>
             {selected && (
-              <Chip
-                size="small"
-                label={t('layout.redesign.inUse')}
-                sx={{
-                  color: 'success.main',
-                  bgcolor: 'action.selected',
-                  flexShrink: 0,
-                }}
-              />
+              <Box
+                component="span"
+                className="subscription-active"
+                sx={{ color: 'text.secondary' }}
+              >
+                <Box
+                  component="span"
+                  sx={{
+                    bgcolor: 'error.main',
+                    width: 6,
+                    height: 6,
+                    borderRadius: '50%',
+                  }}
+                />
+                {t('layout.redesign.inUse')}
+              </Box>
             )}
           </Box>
           <Box className="subscription-actions">
@@ -775,6 +783,7 @@ const ProfileItemBase = (props: ProfileItemProps) => {
               size="small"
               onClick={(event) => {
                 event.stopPropagation()
+                setAdvancedMenu(false)
                 setPosition({ top: event.clientY, left: event.clientX })
                 setAnchorEl(event.currentTarget)
               }}
@@ -797,13 +806,12 @@ const ProfileItemBase = (props: ProfileItemProps) => {
           <Box className="subscription-usage">
             <Box className="subscription-usage-labels">
               <Typography variant="body2">
-                {t('profiles.components.profileItem.labels.usage', {
-                  used: parseTraffic(used).join(' '),
-                  total:
-                    total > 0
-                      ? parseTraffic(total).join(' ')
-                      : t('layout.redesign.noTrafficLimit'),
-                })}
+                {total > 0
+                  ? t('layout.redesign.quotaAvailable', {
+                      amount: parseTraffic(Math.max(0, total - used)).join(' '),
+                    })
+                  : t('layout.redesign.noTrafficLimit')}
+                {extra?.expire ? ` · ${parseExpire(extra.expire)}` : ''}
               </Typography>
             </Box>
             {total > 0 && (
@@ -822,17 +830,6 @@ const ProfileItemBase = (props: ProfileItemProps) => {
             )}
           </Box>
         )}
-        {(extra?.expire ?? 0) > 0 && (
-          <Box className="subscription-footer">
-            {(extra?.expire ?? 0) > 0 && (
-              <Typography variant="caption">
-                {t('profiles.components.profileItem.labels.expires', {
-                  date: parseExpire(extra?.expire),
-                })}
-              </Typography>
-            )}
-          </Box>
-        )}
       </ProfileBox>
 
       <Menu
@@ -848,29 +845,41 @@ const ProfileItemBase = (props: ProfileItemProps) => {
           e.preventDefault()
         }}
       >
-        {(hasUrl ? urlModeMenu : fileModeMenu).map((item) => (
-          <MenuItem
-            key={item.label}
-            onClick={item.handler}
-            disabled={item.disabled}
-            sx={[
-              {
-                minWidth: 120,
-              },
-              (theme) => {
-                return {
-                  color:
-                    item.label === menuLabels.delete
-                      ? theme.palette.error.main
-                      : undefined,
-                }
-              },
-            ]}
-            dense
-          >
-            {t(item.label)}
+        {(hasUrl ? urlModeMenu : fileModeMenu)
+          .filter(
+            (item) =>
+              advancedMenu ||
+              item.label === menuLabels.editInfo ||
+              item.label === menuLabels.delete,
+          )
+          .map((item) => (
+            <MenuItem
+              key={item.label}
+              onClick={item.handler}
+              disabled={item.disabled}
+              sx={[
+                {
+                  minWidth: 120,
+                },
+                (theme) => {
+                  return {
+                    color:
+                      item.label === menuLabels.delete
+                        ? theme.palette.error.main
+                        : undefined,
+                  }
+                },
+              ]}
+              dense
+            >
+              {t(item.label)}
+            </MenuItem>
+          ))}
+        {!advancedMenu && (
+          <MenuItem dense onClick={() => setAdvancedMenu(true)}>
+            {t('layout.redesign.advanced')}
           </MenuItem>
-        ))}
+        )}
       </Menu>
       {fileOpen && (
         <EditorViewer

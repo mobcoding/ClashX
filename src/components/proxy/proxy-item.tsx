@@ -1,9 +1,10 @@
-import { CheckCircleOutlineRounded } from '@mui/icons-material'
+import { CheckCircleOutlineRounded, CheckRounded } from '@mui/icons-material'
 import {
   alpha,
   Box,
   ListItem,
   ListItemButton,
+  ButtonBase,
   ListItemIcon,
   ListItemText,
   styled,
@@ -13,6 +14,7 @@ import {
 import { useTranslation } from 'react-i18next'
 
 import { BaseLoading } from '@/components/base'
+import { NodeBadge } from '@/components/proxy/node-badge'
 import { useProxyDelayState } from '@/hooks/use-proxy-delay-state'
 import delayManager from '@/services/delay'
 import {
@@ -26,6 +28,7 @@ interface Props {
   member: ResolvedProxyMember
   selected: boolean
   showType?: boolean
+  compact?: boolean
   sx?: SxProps<Theme>
   onClick?: (member: ResolvedProxyMember) => void
 }
@@ -50,7 +53,15 @@ const TypeBox = styled('span')(({ theme }) => ({
 
 export const ProxyItem = (props: Props) => {
   const { t } = useTranslation()
-  const { group, member, selected, showType = true, sx, onClick } = props
+  const {
+    group,
+    member,
+    selected,
+    showType = true,
+    compact = false,
+    sx,
+    onClick,
+  } = props
   const details = memberDetails(member)
   const unresolved = member.kind === 'unresolved'
   const name = member.ref.name
@@ -62,6 +73,46 @@ export const ProxyItem = (props: Props) => {
     member,
     group.name,
   )
+
+  if (compact)
+    return (
+      <ButtonBase
+        className="minimal-node"
+        disabled={unresolved}
+        aria-pressed={selected}
+        onClick={() => onClick?.(member)}
+        sx={{ borderColor: 'divider' }}
+      >
+        <NodeBadge name={name} />
+        <Box
+          component="span"
+          className="minimal-node-name"
+          title={name}
+          sx={{ fontWeight: selected ? 600 : 400 }}
+        >
+          {name}
+        </Box>
+        <Box
+          component="span"
+          className="minimal-node-delay"
+          sx={{
+            color:
+              delayManager.formatDelayColor(delayValue, timeout) ||
+              'text.secondary',
+          }}
+        >
+          {!isPreset && (
+            <>
+              {delayManager.formatDelay(delayValue, timeout)}
+              {delayValue > 0 && delayValue < timeout ? ' ms' : ''}
+            </>
+          )}
+        </Box>
+        <Box className="minimal-node-check" sx={{ color: 'error.main' }}>
+          {selected && <CheckRounded fontSize="small" />}
+        </Box>
+      </ButtonBase>
+    )
 
   return (
     <ListItem sx={sx}>

@@ -8,16 +8,16 @@ use crate::{config::Config, core::handle, utils::resolve::window_script::build_w
 use clash_verge_logging::logging;
 use clash_verge_logging::{Type, logging_error};
 
-const DARK_BACKGROUND_COLOR: Color = Color(46, 48, 61, 255); // #2E303D
-const LIGHT_BACKGROUND_COLOR: Color = Color(245, 245, 245, 255); // #F5F5F5
-const DARK_BACKGROUND_HEX: &str = "#2E303D";
-const LIGHT_BACKGROUND_HEX: &str = "#F5F5F5";
+const DARK_BACKGROUND_COLOR: Color = Color(29, 31, 36, 255); // #1D1F24
+const LIGHT_BACKGROUND_COLOR: Color = Color(255, 255, 255, 255); // #FFFFFF
+const DARK_BACKGROUND_HEX: &str = "#1D1F24";
+const LIGHT_BACKGROUND_HEX: &str = "#FFFFFF";
 
-const DEFAULT_WIDTH: f64 = 940.0;
-const DEFAULT_HEIGHT: f64 = 700.0;
+const DEFAULT_WIDTH: f64 = 560.0;
+const DEFAULT_HEIGHT: f64 = 442.0;
 
-const MINIMAL_WIDTH: f64 = 520.0;
-const MINIMAL_HEIGHT: f64 = 520.0;
+const MINIMAL_WIDTH: f64 = 400.0;
+const MINIMAL_HEIGHT: f64 = 400.0;
 
 #[cfg(not(target_os = "macos"))]
 const DEFAULT_DECORATIONS: bool = false;

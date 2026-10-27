@@ -258,7 +258,9 @@ export interface TranslationResources {
         addSubscription: string
         advanced: string
         advancedDescription: string
+        backToHome: string
         backToSettings: string
+        changeNode: string
         checkUpdate: string
         chooseNode: string
         coreRunning: string
@@ -287,7 +289,9 @@ export interface TranslationResources {
         proxyDisabled: string
         proxyEnabled: string
         proxyGroup: string
+        quotaAvailable: string
         retry: string
+        running: string
         searchNodes: string
         settingsDescription: string
         subscriptionDescription: string

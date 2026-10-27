@@ -81,7 +81,3 @@ export const navItems: NavigationItem[] = [
     Component: SettingPage,
   },
 ]
-
-export const primaryNavItems = navItems.filter((item) =>
-  ['/', '/proxies', '/profile', '/settings'].includes(item.path),
-)

@@ -118,36 +118,22 @@ export const ClashModeCard = ({ compact = false }: { compact?: boolean }) => {
 
   if (compact)
     return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 2,
-        }}
+      <ButtonGroup
+        className="minimal-segments"
+        size="small"
+        aria-label={t('home.page.cards.proxyMode')}
       >
-        <Box>
-          <Typography variant="body2">
-            {t('home.page.cards.proxyMode')}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {modeDescription}
-          </Typography>
-        </Box>
-        <ButtonGroup size="small" aria-label={t('home.page.cards.proxyMode')}>
-          {CLASH_MODES.map((mode) => (
-            <Button
-              key={mode}
-              aria-pressed={mode === currentMode}
-              variant={mode === currentMode ? 'contained' : 'outlined'}
-              onClick={() => onChangeMode(mode)}
-            >
-              {t(MODE_META[mode].label)}
-            </Button>
-          ))}
-        </ButtonGroup>
-      </Box>
+        {CLASH_MODES.map((mode) => (
+          <Button
+            key={mode}
+            aria-pressed={mode === currentMode}
+            title={t(MODE_META[mode].description)}
+            onClick={() => onChangeMode(mode)}
+          >
+            {t(MODE_META[mode].label)}
+          </Button>
+        ))}
+      </ButtonGroup>
     )
 
   const buttonStyles = (mode: ClashMode) => ({

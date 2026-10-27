@@ -25,7 +25,6 @@ import {
   AccordionDetails,
   Box,
   Button,
-  Divider,
   Grid,
   IconButton,
   Stack,
@@ -65,7 +64,6 @@ import {
 import { mutate } from '@/services/mutate'
 import { errorDetail, showNotice } from '@/services/notice-service'
 import { revalidateQuery, useQuery } from '@/services/query-client'
-import { useThemeMode } from '@/services/states'
 import {
   useProfileLoadingCache,
   useProfileUpdates,
@@ -685,12 +683,6 @@ const ProfilePage = () => {
     }
   })
 
-  const mode = useThemeMode()
-  const isLight = mode === 'light'
-  const dividercolor = isLight
-    ? 'rgba(0, 0, 0, 0.06)'
-    : 'rgba(255, 255, 255, 0.06)'
-
   // 卸载后不再执行尚未发送的切换意图。
   useEffect(() => {
     profilePageMountedRef.current = true
@@ -716,8 +708,13 @@ const ProfilePage = () => {
             <>
               <Button
                 variant="contained"
+                sx={{
+                  bgcolor: 'text.primary',
+                  color: 'background.default',
+                  '&:hover': { bgcolor: 'text.secondary' },
+                }}
                 startIcon={<AddRounded />}
-                onClick={() => setImportOpen(!importOpen)}
+                onClick={() => viewerRef.current?.create()}
               >
                 {t('layout.redesign.addSubscription')}
               </Button>
@@ -730,6 +727,13 @@ const ProfilePage = () => {
                   <MoreHorizRounded />
                 </Box>
                 <Box className="subscription-tools-popover">
+                  <IconButton
+                    size="small"
+                    title={t('profiles.page.actions.import')}
+                    onClick={() => setImportOpen(!importOpen)}
+                  >
+                    <ContentPasteRounded />
+                  </IconButton>
                   {/* Batch mode toggle button */}
                   <IconButton
                     size="small"
@@ -970,13 +974,12 @@ const ProfilePage = () => {
               ))}
             </Box>
           </DragDropProvider>
-          <Divider
-            variant="middle"
-            flexItem
-            sx={{ width: `calc(100% - 32px)`, borderColor: dividercolor }}
-          ></Divider>
           <Box sx={{ mt: 1.5, mb: '10px' }}>
-            <Accordion className="clashx-accordion" disableGutters>
+            <Accordion
+              className="clashx-accordion"
+              disableGutters
+              slotProps={{ transition: { unmountOnExit: true } }}
+            >
               <AccordionSummary expandIcon={<ExpandMoreRounded />}>
                 {t('layout.redesign.advanced')}
               </AccordionSummary>

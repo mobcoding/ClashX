@@ -164,7 +164,7 @@ export const useCustomTheme = () => {
             secondary: setting.secondary_text || dt.secondary_text,
           },
           background: {
-            paper: mode === 'light' ? '#FFFFFF' : '#1B222E',
+            paper: mode === 'light' ? '#FFFFFF' : '#1D1F24',
             default: dt.background_color,
           },
         },
@@ -191,7 +191,7 @@ export const useCustomTheme = () => {
           success: { main: dt.success_color },
           text: { primary: dt.primary_text, secondary: dt.secondary_text },
           background: {
-            paper: mode === 'light' ? '#FFFFFF' : '#1B222E',
+            paper: mode === 'light' ? '#FFFFFF' : '#1D1F24',
             default: dt.background_color,
           },
         },
@@ -200,7 +200,7 @@ export const useCustomTheme = () => {
     }
 
     muiTheme.shape.borderRadius = 10
-    muiTheme.palette.divider = mode === 'light' ? '#E0E6EF' : '#293241'
+    muiTheme.palette.divider = mode === 'light' ? '#EDF0F3' : '#32353D'
     muiTheme.typography.fontSize = 13
     const rootEle = document.documentElement
     if (rootEle) {
@@ -218,6 +218,11 @@ export const useCustomTheme = () => {
         mode === 'light' ? '#EDF1F7' : '#151A23',
       )
       rootEle.style.setProperty('--divider-color', dividerColor)
+      rootEle.style.setProperty('--text-primary', muiTheme.palette.text.primary)
+      rootEle.style.setProperty(
+        '--text-secondary',
+        muiTheme.palette.text.secondary,
+      )
       rootEle.style.setProperty('--background-color', backgroundColor)
       rootEle.style.setProperty('--selection-color', selectColor)
       rootEle.style.setProperty('--scroller-color', scrollColor)

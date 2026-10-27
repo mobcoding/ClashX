@@ -1,3 +1,11 @@
+## v1.1.2
+
+- Simplify the interface with icon navigation, one-click connection, compact node and subscription lists, and basic preferences.
+- Keep the running indicator and elapsed time in sync with the system proxy switch, updating every second.
+- Show update prompts with a red dot on Settings and display node latency using the existing color thresholds.
+
+---
+
 ## v1.1.1
 
 - Automatically display and route nodes from subscriptions that contain no proxy groups or rules.

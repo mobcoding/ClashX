@@ -16,7 +16,7 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { useLockFn } from 'ahooks'
 import { useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 
 import { BasePage } from '@/components/base'
 import { ProxyItem } from '@/components/proxy/proxy-item'
@@ -43,7 +43,10 @@ const NodesPage = () => {
   const { current } = useProfiles()
   const { verge } = useVerge()
   const forgetSelection = useForgetSelection()
-  const [groupName, setGroupName] = useState('')
+  const [searchParams] = useSearchParams()
+  const [groupName, setGroupName] = useState(
+    () => searchParams.get('group') ?? '',
+  )
   const [search, setSearch] = useState('')
   const [testing, setTesting] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -51,7 +54,11 @@ const NodesPage = () => {
     () =>
       clashConfig?.mode === 'global' && proxyView?.global
         ? [proxyView.global]
-        : (proxyView?.groups.filter((item) => !item.hidden) ?? []),
+        : (proxyView?.groups.filter(
+            (item) =>
+              !item.hidden &&
+              (item.type === 'Selector' || item.type === 'URLTest'),
+          ) ?? []),
     [clashConfig?.mode, proxyView],
   )
   const group = groups.find((item) => item.name === groupName) ?? groups[0]
@@ -74,13 +81,15 @@ const NodesPage = () => {
   const { handleProxyGroupChange } = useProxySelection({
     onSuccess: () => {
       void refreshProxy()
+        .then(() => navigate('/'))
+        .catch(showNotice.error)
     },
     onError: showNotice.error,
   })
   const virtualizer = useVirtualizer({
     count: members.length,
     getScrollElement: () => scrollRef.current,
-    estimateSize: () => 64,
+    estimateSize: () => 50,
     overscan: 6,
     getItemKey: (index) => `${group?.name}:${members[index].index}`,
   })
@@ -115,6 +124,17 @@ const NodesPage = () => {
       title={t('layout.components.navigation.tabs.proxies')}
       full
       contentStyle={{ height: '100%' }}
+      header={
+        <Button
+          size="small"
+          startIcon={<RefreshRounded />}
+          onClick={test}
+          loading={testing}
+          disabled={!members.length}
+        >
+          {t('layout.redesign.testLatency')}
+        </Button>
+      }
     >
       <Box className="nodes-page">
         <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
@@ -134,15 +154,6 @@ const NodesPage = () => {
               },
             }}
           />
-          <Button
-            variant="outlined"
-            startIcon={<RefreshRounded />}
-            onClick={test}
-            loading={testing}
-            disabled={!members.length}
-          >
-            {t('layout.redesign.testLatency')}
-          </Button>
           <Button
             variant="outlined"
             aria-label={t('layout.redesign.advanced')}
@@ -166,6 +177,11 @@ const NodesPage = () => {
               value={group.name}
               onChange={(event) => {
                 setGroupName(event.target.value)
+                const storageKey = 'clash-verge-selected-proxy-group'
+                localStorage.setItem(
+                  current?.uid ? `${storageKey}:${current.uid}` : storageKey,
+                  event.target.value,
+                )
                 virtualizer.scrollToOffset(0)
               }}
               sx={{ maxWidth: '75%' }}
@@ -236,6 +252,7 @@ const NodesPage = () => {
                       group={group}
                       member={member}
                       showType={false}
+                      compact
                       selected={member.ref.name === (group.fixed || group.now)}
                       onClick={(item) =>
                         handleProxyGroupChange(group, item.ref)

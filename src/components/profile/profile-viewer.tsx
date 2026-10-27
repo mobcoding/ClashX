@@ -1,4 +1,8 @@
+import { ExpandMoreRounded } from '@mui/icons-material'
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Box,
   FormControl,
   InputAdornment,
@@ -262,7 +266,12 @@ export function ProfileViewer({ onChange, ref }: ProfileViewerProps) {
           ? t('profiles.modals.profileForm.title.create')
           : t('profiles.modals.profileForm.title.edit')
       }
-      contentSx={{ width: 375, pb: 0, maxHeight: '80%' }}
+      contentSx={{
+        width: 375,
+        maxWidth: 'calc(100vw - 112px)',
+        pb: 0,
+        maxHeight: '80%',
+      }}
       okBtn={t('shared.actions.save')}
       cancelBtn={t('shared.actions.cancel')}
       onClose={handleClose}
@@ -302,17 +311,19 @@ export function ProfileViewer({ onChange, ref }: ProfileViewerProps) {
         )}
       />
 
-      <Controller
-        name="desc"
-        control={control}
-        render={({ field }) => (
-          <TextField
-            {...text}
-            {...field}
-            label={t('profiles.modals.profileForm.fields.description')}
-          />
-        )}
-      />
+      {isLocal && (
+        <Controller
+          name="desc"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...text}
+              {...field}
+              label={t('profiles.modals.profileForm.fields.description')}
+            />
+          )}
+        />
+      )}
 
       {isLocal && openType === 'new' && (
         <FileInput
@@ -338,134 +349,156 @@ export function ProfileViewer({ onChange, ref }: ProfileViewerProps) {
             )}
           />
 
-          <Controller
-            name="option.user_agent"
-            control={control}
-            render={({ field }) => (
-              <TextField
-                {...text}
-                {...field}
-                placeholder={`clash-verge/v${version}`}
-                label={t('profiles.modals.profileForm.fields.userAgent')}
+          <Accordion
+            className="clashx-accordion"
+            disableGutters
+            slotProps={{ transition: { unmountOnExit: true } }}
+          >
+            <AccordionSummary expandIcon={<ExpandMoreRounded />}>
+              {t('layout.redesign.advanced')}
+            </AccordionSummary>
+            <AccordionDetails>
+              <Controller
+                name="desc"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...text}
+                    {...field}
+                    label={t('profiles.modals.profileForm.fields.description')}
+                  />
+                )}
               />
-            )}
-          />
+              <Controller
+                name="option.user_agent"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...text}
+                    {...field}
+                    placeholder={`clash-verge/v${version}`}
+                    label={t('profiles.modals.profileForm.fields.userAgent')}
+                  />
+                )}
+              />
+              <Controller
+                name="option.timeout_seconds"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...text}
+                    {...field}
+                    type="number"
+                    placeholder="60"
+                    label={t('profiles.modals.profileForm.fields.httpTimeout')}
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            {t('shared.units.seconds')}
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                  />
+                )}
+              />
+              <Controller
+                name="option.update_interval"
+                control={control}
+                render={({ field }) => {
+                  const interval = Number(field.value)
+                  const tooFrequent =
+                    Number.isFinite(interval) &&
+                    interval > 0 &&
+                    interval < MIN_UPDATE_INTERVAL
 
-          <Controller
-            name="option.timeout_seconds"
-            control={control}
-            render={({ field }) => (
-              <TextField
-                {...text}
-                {...field}
-                type="number"
-                placeholder="60"
-                label={t('profiles.modals.profileForm.fields.httpTimeout')}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        {t('shared.units.seconds')}
-                      </InputAdornment>
-                    ),
-                  },
+                  return (
+                    <TextField
+                      {...text}
+                      {...field}
+                      type="number"
+                      label={t(
+                        'profiles.modals.profileForm.fields.updateInterval',
+                      )}
+                      helperText={
+                        tooFrequent
+                          ? t(
+                              'profiles.modals.profileForm.warnings.frequentUpdate',
+                              { minutes: MIN_UPDATE_INTERVAL },
+                            )
+                          : undefined
+                      }
+                      slotProps={{
+                        formHelperText: { sx: { color: 'warning.main' } },
+                        input: {
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              {t('shared.units.minutes')}
+                            </InputAdornment>
+                          ),
+                        },
+                      }}
+                    />
+                  )
                 }}
               />
-            )}
-          />
-          <Controller
-            name="option.update_interval"
-            control={control}
-            render={({ field }) => {
-              const interval = Number(field.value)
-              const tooFrequent =
-                Number.isFinite(interval) &&
-                interval > 0 &&
-                interval < MIN_UPDATE_INTERVAL
-
-              return (
-                <TextField
-                  {...text}
-                  {...field}
-                  type="number"
-                  label={t('profiles.modals.profileForm.fields.updateInterval')}
-                  helperText={
-                    tooFrequent
-                      ? t(
-                          'profiles.modals.profileForm.warnings.frequentUpdate',
-                          { minutes: MIN_UPDATE_INTERVAL },
-                        )
-                      : undefined
-                  }
-                  slotProps={{
-                    formHelperText: { sx: { color: 'warning.main' } },
-                    input: {
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          {t('shared.units.minutes')}
-                        </InputAdornment>
-                      ),
-                    },
-                  }}
-                />
-              )
-            }}
-          />
-          <Controller
-            name="option.with_proxy"
-            control={control}
-            render={({ field }) => (
-              <StyledBox>
-                <InputLabel>
-                  {t('profiles.modals.profileForm.fields.useSystemProxy')}
-                </InputLabel>
-                <Switch checked={field.value!} {...field} color="primary" />
-              </StyledBox>
-            )}
-          />
-
-          <Controller
-            name="option.self_proxy"
-            control={control}
-            render={({ field }) => (
-              <StyledBox>
-                <InputLabel>
-                  {t('profiles.modals.profileForm.fields.useClashProxy')}
-                </InputLabel>
-                <Switch checked={field.value!} {...field} color="primary" />
-              </StyledBox>
-            )}
-          />
-
-          <Controller
-            name="option.danger_accept_invalid_certs"
-            control={control}
-            render={({ field }) => (
-              <StyledBox>
-                <InputLabel>
-                  {t('profiles.modals.profileForm.fields.acceptInvalidCerts')}
-                </InputLabel>
-                <Switch checked={field.value!} {...field} color="primary" />
-              </StyledBox>
-            )}
-          />
-
-          <Controller
-            name="option.allow_auto_update"
-            control={control}
-            render={({ field }) => (
-              <StyledBox>
-                <InputLabel>
-                  {t('profiles.modals.profileForm.fields.allowAutoUpdate')}
-                </InputLabel>
-                <Switch
-                  checked={field.value ?? true}
-                  {...field}
-                  color="primary"
-                />
-              </StyledBox>
-            )}
-          />
+              <Controller
+                name="option.with_proxy"
+                control={control}
+                render={({ field }) => (
+                  <StyledBox>
+                    <InputLabel>
+                      {t('profiles.modals.profileForm.fields.useSystemProxy')}
+                    </InputLabel>
+                    <Switch checked={field.value!} {...field} color="primary" />
+                  </StyledBox>
+                )}
+              />
+              <Controller
+                name="option.self_proxy"
+                control={control}
+                render={({ field }) => (
+                  <StyledBox>
+                    <InputLabel>
+                      {t('profiles.modals.profileForm.fields.useClashProxy')}
+                    </InputLabel>
+                    <Switch checked={field.value!} {...field} color="primary" />
+                  </StyledBox>
+                )}
+              />
+              <Controller
+                name="option.danger_accept_invalid_certs"
+                control={control}
+                render={({ field }) => (
+                  <StyledBox>
+                    <InputLabel>
+                      {t(
+                        'profiles.modals.profileForm.fields.acceptInvalidCerts',
+                      )}
+                    </InputLabel>
+                    <Switch checked={field.value!} {...field} color="primary" />
+                  </StyledBox>
+                )}
+              />
+              <Controller
+                name="option.allow_auto_update"
+                control={control}
+                render={({ field }) => (
+                  <StyledBox>
+                    <InputLabel>
+                      {t('profiles.modals.profileForm.fields.allowAutoUpdate')}
+                    </InputLabel>
+                    <Switch
+                      checked={field.value ?? true}
+                      {...field}
+                      color="primary"
+                    />
+                  </StyledBox>
+                )}
+              />
+            </AccordionDetails>
+          </Accordion>
         </>
       )}
     </BaseDialog>

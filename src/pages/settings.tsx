@@ -49,10 +49,7 @@ const SettingPage = () => {
   }
   return (
     <BasePage title={t('settings.page.title')}>
-      <Typography className="setting-group-title">
-        {t('layout.redesign.general')}
-      </Typography>
-      <Box className="clashx-panel settings-panel">
+      <Box className="clashx-panel settings-panel basic-preferences">
         {(['enable_auto_launch', 'enable_silent_start'] as const).map(
           (field) => (
             <SettingItem
@@ -70,7 +67,22 @@ const SettingPage = () => {
                 onGuard={(value) => patchVerge({ [field]: value })}
                 onCatch={showNotice.error}
               >
-                <Switch />
+                <Switch
+                  sx={{
+                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                      bgcolor: 'text.primary',
+                    },
+                  }}
+                  slotProps={{
+                    input: {
+                      'aria-label': t(
+                        field === 'enable_auto_launch'
+                          ? 'settings.sections.system.fields.autoLaunch'
+                          : 'settings.sections.system.fields.silentStart',
+                      ),
+                    },
+                  }}
+                />
               </GuardState>
             </SettingItem>
           ),
@@ -109,29 +121,24 @@ const SettingPage = () => {
           </GuardState>
         </SettingItem>
       </Box>
-      <Typography className="setting-group-title">
-        {t('layout.redesign.networkTools')}
-      </Typography>
-      <Box className="clashx-panel settings-panel">
-        <ProxyControlSwitches
-          compact
-          label={t('settings.sections.system.toggles.tunMode')}
-          onError={showNotice.error}
-        />
-      </Box>
       <Accordion
         className="clashx-accordion advanced-settings-accordion"
         disableGutters
+        slotProps={{ transition: { unmountOnExit: true } }}
       >
         <AccordionSummary expandIcon={<ExpandMoreRounded />}>
           <Box>
             <Typography>{t('layout.redesign.advanced')}</Typography>
-            <Typography variant="caption" color="text.secondary">
-              {t('layout.redesign.advancedDescription')}
-            </Typography>
           </Box>
         </AccordionSummary>
         <AccordionDetails className="advanced-settings-details">
+          <Box className="clashx-panel settings-panel">
+            <ProxyControlSwitches
+              compact
+              label={t('settings.sections.system.toggles.tunMode')}
+              onError={showNotice.error}
+            />
+          </Box>
           <Box className="advanced-settings">
             <Box className="advanced-settings-column">
               <Box className="advanced-settings-card">
@@ -150,52 +157,55 @@ const SettingPage = () => {
               </Box>
             </Box>
           </Box>
-        </AccordionDetails>
-      </Accordion>
-      <Accordion className="clashx-accordion" disableGutters>
-        <AccordionSummary expandIcon={<ExpandMoreRounded />}>
-          <Box>
-            <Typography>{t('layout.redesign.diagnostics')}</Typography>
-            <Typography variant="caption" color="text.secondary">
-              {t('layout.redesign.diagnosticsDescription')}
-            </Typography>
-          </Box>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-            {(['connections', 'rules', 'logs', 'unlock'] as const).map(
-              (page) => (
+          <Accordion
+            className="clashx-accordion"
+            disableGutters
+            slotProps={{ transition: { unmountOnExit: true } }}
+          >
+            <AccordionSummary expandIcon={<ExpandMoreRounded />}>
+              <Box>
+                <Typography>{t('layout.redesign.diagnostics')}</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {t('layout.redesign.diagnosticsDescription')}
+                </Typography>
+              </Box>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {(['connections', 'rules', 'logs', 'unlock'] as const).map(
+                  (page) => (
+                    <Button
+                      key={page}
+                      onClick={() =>
+                        navigate(page === 'unlock' ? '/unlock' : `/${page}`)
+                      }
+                      endIcon={<ChevronRightRounded />}
+                    >
+                      {t(`layout.components.navigation.tabs.${page}`)}
+                    </Button>
+                  ),
+                )}
                 <Button
-                  key={page}
-                  onClick={() =>
-                    navigate(page === 'unlock' ? '/unlock' : `/${page}`)
-                  }
+                  onClick={() => navigate('/diagnostics/overview')}
                   endIcon={<ChevronRightRounded />}
                 >
-                  {t(`layout.components.navigation.tabs.${page}`)}
+                  {t('layout.redesign.detailedOverview')}
                 </Button>
-              ),
-            )}
-            <Button
-              onClick={() => navigate('/diagnostics/overview')}
-              endIcon={<ChevronRightRounded />}
-            >
-              {t('layout.redesign.detailedOverview')}
-            </Button>
-          </Box>
+              </Box>
+            </AccordionDetails>
+          </Accordion>
         </AccordionDetails>
       </Accordion>
       <Box
-        className="clashx-panel"
+        className="settings-about"
         sx={{
-          mt: 2,
+          mt: 1,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
         }}
       >
         <Box>
-          <Typography>{t('layout.redesign.about')}</Typography>
           <Typography variant="caption" color="text.secondary">
             ClashX · {version}
           </Typography>
@@ -208,7 +218,6 @@ const SettingPage = () => {
           )}
         </Box>
         <Button
-          variant="outlined"
           onClick={
             updateInfo?.available ? () => updateRef.current?.open() : check
           }

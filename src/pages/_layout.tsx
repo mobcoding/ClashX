@@ -1,17 +1,18 @@
 import { Paper, ThemeProvider } from '@mui/material'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Outlet, useNavigate } from 'react-router'
 
 import { BaseErrorBoundary } from '@/components/base'
-import { LayoutSidebar } from '@/components/layout/layout-sidebar'
+import { LayoutHeader } from '@/components/layout/layout-header'
 import { NoticeManager } from '@/components/layout/notice-manager'
 import { ServiceMigrationDialog } from '@/components/layout/service-migration-dialog'
 import { SysproxyPrivilegeDialog } from '@/components/layout/sysproxy-privilege-dialog'
 import { WindowResizeHandles } from '@/components/layout/window-controller'
 import { useI18n } from '@/hooks/use-i18n'
+import { useSystemProxyState } from '@/hooks/use-system-proxy-state'
 import { useVerge } from '@/hooks/use-verge'
 import { useWindowDecorations } from '@/hooks/use-window'
 import { useEventBus } from '@/services/bus'
@@ -33,12 +34,18 @@ const OS = getSystem()
 
 const Layout = () => {
   const mode = useThemeMode()
-  const isDark = mode !== 'light'
   const { t } = useTranslation()
   const { theme } = useCustomTheme()
   const { verge } = useVerge()
   const { language } = verge ?? {}
-  const navCollapsed = verge?.collapse_navbar ?? false
+  const { indicator } = useSystemProxyState()
+  const [proxySessionStartedAt, setProxySessionStartedAt] = useReducer(
+    (_: number | null, next: number | null) => next,
+    null,
+  )
+  useEffect(() => {
+    setProxySessionStartedAt(indicator ? performance.now() : null)
+  }, [indicator])
   const { switchLanguage } = useI18n()
   const navigate = useNavigate()
   const themeReady = useMemo(() => Boolean(theme), [theme])
@@ -108,7 +115,7 @@ const Layout = () => {
       <Paper
         square
         elevation={0}
-        className={`${OS} layout${navCollapsed ? ' layout--nav-collapsed' : ''}`}
+        className={`${OS} layout layout--minimal`}
         style={{
           borderTopLeftRadius: '0px',
           borderTopRightRadius: '0px',
@@ -138,13 +145,11 @@ const Layout = () => {
         {decorated === false && <WindowResizeHandles />}
 
         <div className="layout-content">
-          <LayoutSidebar isDark={isDark} isCollapsed={navCollapsed} />
-
           <div className="layout-content__right">
-            <div className="the-bar"></div>
+            <LayoutHeader />
             <div className="the-content">
               <BaseErrorBoundary>
-                <Outlet />
+                <Outlet context={{ proxySessionStartedAt }} />
               </BaseErrorBoundary>
             </div>
           </div>

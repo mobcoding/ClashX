@@ -1,13 +1,16 @@
 import {
-  PowerSettingsNewRounded,
+  ArrowDownwardRounded,
+  ArrowUpwardRounded,
   ChevronRightRounded,
+  PowerSettingsNewRounded,
 } from '@mui/icons-material'
-import { Box, Button, LinearProgress, Typography } from '@mui/material'
+import { Box, ButtonBase, Tooltip } from '@mui/material'
 import { useLockFn } from 'ahooks'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router'
+import { useNavigate, useOutletContext } from 'react-router'
 
-import { BasePage, Switch } from '@/components/base'
+import { BasePage } from '@/components/base'
 import { ClashModeCard } from '@/components/home/clash-mode-card'
 import { CurrentProxyCard } from '@/components/home/current-proxy-card'
 import { useProfiles } from '@/hooks/use-profiles'
@@ -17,159 +20,154 @@ import { useVisibility } from '@/hooks/use-visibility'
 import { showNotice } from '@/services/notice-service'
 import parseTraffic from '@/utils/parse-traffic'
 
+const SessionStatus = ({ startedAt }: { startedAt: number | null }) => {
+  const { t } = useTranslation()
+  const [now, setNow] = useState(() => performance.now())
+  useEffect(() => {
+    if (startedAt === null) return
+    const timer = window.setInterval(() => setNow(performance.now()), 1000)
+    return () => window.clearInterval(timer)
+  }, [startedAt])
+  const seconds =
+    startedAt === null ? 0 : Math.max(0, Math.floor((now - startedAt) / 1000))
+  const elapsed = [
+    Math.floor(seconds / 3600),
+    Math.floor(seconds / 60) % 60,
+    seconds % 60,
+  ]
+    .map((value) => String(value).padStart(2, '0'))
+    .join(':')
+  return (
+    <Box className="connection-runtime" sx={{ color: 'text.secondary' }}>
+      <Box
+        component="span"
+        className={
+          startedAt === null
+            ? 'core-status-dot'
+            : 'core-status-dot core-status-dot--running'
+        }
+        sx={{
+          bgcolor: startedAt === null ? 'text.disabled' : 'error.main',
+          color: 'error.main',
+        }}
+      />
+      <span>
+        {t(
+          startedAt === null
+            ? 'layout.redesign.coreStopped'
+            : 'layout.redesign.running',
+        )}
+      </span>
+      <time>{elapsed}</time>
+    </Box>
+  )
+}
+
 const HomePage = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { current } = useProfiles()
   const { indicator, toggleSystemProxy } = useSystemProxyState()
+  const { proxySessionStartedAt } = useOutletContext<{
+    proxySessionStartedAt: number | null
+  }>()
+  const [toggling, setToggling] = useState(false)
   const visible = useVisibility()
   const {
     response: { data: traffic },
   } = useTrafficData({ enabled: visible })
-  const toggle = useLockFn(async (enabled: boolean) => {
+  const toggle = useLockFn(async () => {
+    setToggling(true)
     try {
-      await toggleSystemProxy(enabled)
+      await toggleSystemProxy(!indicator)
     } catch (error) {
       showNotice.error(error)
+    } finally {
+      setToggling(false)
     }
   })
   const extra = current?.extra
-  const used = extra ? extra.upload + extra.download : 0
-  const progress =
+  const remaining =
     extra && extra.total > 0
-      ? Math.min(100, (used / extra.total) * 100)
-      : undefined
+      ? t('layout.redesign.quotaAvailable', {
+          amount: parseTraffic(
+            Math.max(0, extra.total - extra.upload - extra.download),
+          ).join(' '),
+        })
+      : t('layout.redesign.noTrafficLimit')
+  const summary = current
+    ? `${current.name} · ${remaining}`
+    : t('layout.redesign.addSubscription')
   return (
-    <BasePage title={t('layout.components.navigation.tabs.home')}>
-      <Box className="clashx-panel overview-connection">
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Box
-            sx={{
-              p: 1.75,
-              borderRadius: 2,
-              bgcolor: 'action.selected',
-              color: indicator ? 'success.main' : 'text.secondary',
-              display: 'flex',
-            }}
+    <BasePage>
+      <Box className="connection-overview">
+        <Box className="connection-power-ring">
+          <Tooltip
+            title={t(
+              indicator
+                ? 'layout.redesign.proxyEnabled'
+                : 'layout.redesign.proxyDisabled',
+            )}
           >
-            <PowerSettingsNewRounded />
-          </Box>
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="h6">
-              {t(
-                indicator
-                  ? 'layout.redesign.proxyEnabled'
-                  : 'layout.redesign.proxyDisabled',
-              )}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {t('layout.redesign.proxyDescription')}
-            </Typography>
-          </Box>
-          <Switch
-            checked={indicator}
-            onChange={(_, value) => {
-              void toggle(value)
-            }}
-            slotProps={{
-              input: {
-                'aria-label': t('settings.sections.system.toggles.systemProxy'),
-              },
-            }}
-          />
+            <ButtonBase
+              className="connection-power"
+              aria-label={t('settings.sections.system.toggles.systemProxy')}
+              aria-pressed={indicator}
+              disabled={toggling}
+              onClick={toggle}
+              sx={({ palette }) => ({
+                bgcolor: indicator ? 'text.primary' : 'action.selected',
+                color: indicator ? 'background.default' : 'text.secondary',
+                boxShadow: `0 6px 12px ${palette.common.black}18`,
+              })}
+            >
+              <PowerSettingsNewRounded />
+            </ButtonBase>
+          </Tooltip>
         </Box>
-        <Box
-          sx={{ borderTop: 1, borderColor: 'divider', mt: 3, pt: 1 }}
-          className="overview-current-proxy"
-        >
-          <CurrentProxyCard compact />
+        <SessionStatus
+          key={proxySessionStartedAt}
+          startedAt={proxySessionStartedAt}
+        />
+        <CurrentProxyCard compact />
+        <Box className="connection-mode">
+          <ClashModeCard compact />
         </Box>
-      </Box>
-      <Box className="overview-mode">
-        <ClashModeCard compact />
-      </Box>
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-          gap: 2,
-          my: 3,
-        }}
-      >
-        {(['down', 'up'] as const).map((direction) => {
-          const [value, unit] = parseTraffic(traffic?.[direction] ?? 0)
-          return (
-            <Box className="clashx-panel" key={direction} sx={{ mb: 0 }}>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                {t(
-                  direction === 'down'
-                    ? 'layout.redesign.download'
-                    : 'layout.redesign.upload',
-                )}
-              </Typography>
-              <Typography
-                component="span"
-                sx={{ fontSize: 28, fontWeight: 500 }}
-              >
-                {value}
-              </Typography>
-              <Typography
-                component="span"
-                color="text.secondary"
-                sx={{ ml: 1, fontSize: 12 }}
-              >
-                {unit}/s
-              </Typography>
-            </Box>
-          )
-        })}
-      </Box>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          mb: 1,
-        }}
-      >
-        <Typography variant="body2">
-          {t('layout.redesign.currentSubscription')}
-        </Typography>
-        <Button
-          size="small"
-          endIcon={<ChevronRightRounded />}
-          onClick={() => navigate('/profile')}
-        >
-          {t('layout.redesign.manageSubscriptions')}
-        </Button>
-      </Box>
-      <Box className="clashx-panel">
-        <Typography sx={{ fontWeight: 500 }}>
-          {current?.name || t('layout.redesign.noSubscription')}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          {extra && extra.total > 0
-            ? `${parseTraffic(Math.max(0, extra.total - used)).join(' ')} / ${parseTraffic(extra.total).join(' ')}`
-            : t('layout.redesign.noTrafficLimit')}
-          {extra?.expire
-            ? ` · ${new Date(extra.expire * 1000).toLocaleDateString()}`
-            : ''}
-        </Typography>
-        {progress !== undefined && (
-          <LinearProgress
-            variant="determinate"
-            value={progress}
-            color={
-              progress >= 90 ? 'error' : progress >= 70 ? 'warning' : 'success'
-            }
-            sx={{ mt: 2, height: 4, borderRadius: 2 }}
-          />
-        )}
-        {!current && (
-          <Button sx={{ mt: 1 }} onClick={() => navigate('/profile')}>
-            {t('layout.redesign.addSubscription')}
-          </Button>
-        )}
+        <Box className="connection-footer" sx={{ borderColor: 'divider' }}>
+          <Box className="connection-speeds">
+            {(['down', 'up'] as const).map((direction) => {
+              const [value, unit] = parseTraffic(traffic?.[direction] ?? 0)
+              const label = t(
+                direction === 'down'
+                  ? 'layout.redesign.download'
+                  : 'layout.redesign.upload',
+              )
+              return (
+                <Tooltip key={direction} title={label}>
+                  <Box className="connection-speed" aria-label={label}>
+                    {direction === 'down' ? (
+                      <ArrowDownwardRounded />
+                    ) : (
+                      <ArrowUpwardRounded />
+                    )}
+                    <span>{value}</span>
+                    <Box component="span" sx={{ color: 'text.secondary' }}>
+                      {unit}/s
+                    </Box>
+                  </Box>
+                </Tooltip>
+              )
+            })}
+          </Box>
+          <ButtonBase
+            className="connection-subscription"
+            onClick={() => navigate('/profile')}
+            title={summary}
+          >
+            <span>{summary}</span>
+            <ChevronRightRounded fontSize="small" />
+          </ButtonBase>
+        </Box>
       </Box>
     </BasePage>
   )
