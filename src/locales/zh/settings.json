@@ -1,5 +1,15 @@
 {
   "page": {
+    "groups": {
+      "common": "常用设置",
+      "network": "网络与内核",
+      "appearance": "界面与行为",
+      "maintenance": "高级与维护",
+      "maintenanceDescription": "备份、配置、目录与诊断工具",
+      "about": "关于 ClashX",
+      "appVersion": "应用版本",
+      "coreVersion": "内核版本"
+    },
     "actions": {
       "manual": "使用手册",
       "telegram": "Telegram 频道",

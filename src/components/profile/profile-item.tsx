@@ -107,7 +107,7 @@ const ProfileItemBase = (props: ProfileItemProps) => {
     handle: handleRef,
   })
 
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const [advancedMenu, setAdvancedMenu] = useState(false)
   const [position, setPosition] = useState({ left: 0, top: 0 })
@@ -633,6 +633,7 @@ const ProfileItemBase = (props: ProfileItemProps) => {
   return (
     <Box ref={setElement} sx={{ position: 'relative', borderRadius: '8px' }}>
       <ProfileBox
+        className="subscription-card"
         aria-selected={selected}
         onClick={(e) => {
           if (activating) {
@@ -674,6 +675,16 @@ const ProfileItemBase = (props: ProfileItemProps) => {
           </Box>
         )}
         <Box className="subscription-header">
+          <IconButton
+            ref={handleRef}
+            size="small"
+            className="subscription-drag-handle"
+            aria-label={t('profiles.components.profileItem.labels.reorder')}
+            title={t('profiles.components.profileItem.labels.reorder')}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <DragIndicatorRounded fontSize="small" />
+          </IconButton>
           {batchMode && (
             <IconButton
               size="small"
@@ -690,15 +701,6 @@ const ProfileItemBase = (props: ProfileItemProps) => {
               )}
             </IconButton>
           )}
-          <IconButton
-            ref={handleRef}
-            size="small"
-            className="subscription-drag-handle"
-            aria-label={t('profiles.components.profileItem.labels.reorder')}
-            onClick={(event) => event.stopPropagation()}
-          >
-            <DragIndicatorRounded fontSize="small" />
-          </IconButton>
           <Box className="subscription-name">
             <Typography
               variant="h6"
@@ -760,22 +762,6 @@ const ProfileItemBase = (props: ProfileItemProps) => {
                     }}
                   />
                 </IconButton>
-                {hasUrl && (updated > 0 || showNextUpdate) && (
-                  <Button
-                    className="subscription-update-time"
-                    size="small"
-                    title={
-                      showNextUpdate
-                        ? t('profiles.components.profileItem.tooltips.showLast')
-                        : `${t('shared.labels.updateTime')}: ${parseExpire(updated)}\n${t('profiles.components.profileItem.tooltips.showNext')}`
-                    }
-                    onClick={toggleUpdateTimeDisplay}
-                  >
-                    {showNextUpdate
-                      ? nextUpdateTime
-                      : dayjs(updated * 1000).fromNow()}
-                  </Button>
-                )}
               </Box>
             )}
             <IconButton
@@ -802,17 +788,43 @@ const ProfileItemBase = (props: ProfileItemProps) => {
             {description}
           </Typography>
         )}
-        {hasExtra && (
+        {(hasExtra || hasUrl) && (
           <Box className="subscription-usage">
             <Box className="subscription-usage-labels">
-              <Typography variant="body2">
-                {total > 0
-                  ? t('layout.redesign.quotaAvailable', {
-                      amount: parseTraffic(Math.max(0, total - used)).join(' '),
-                    })
-                  : t('layout.redesign.noTrafficLimit')}
-                {extra?.expire ? ` · ${parseExpire(extra.expire)}` : ''}
-              </Typography>
+              {hasExtra && (
+                <Typography variant="body2">
+                  {total > 0
+                    ? t('layout.redesign.quotaAvailable', {
+                        amount: parseTraffic(Math.max(0, total - used)).join(
+                          ' ',
+                        ),
+                      })
+                    : t('layout.redesign.noTrafficLimit')}
+                  {extra?.expire ? ` · ${parseExpire(extra.expire)}` : ''}
+                </Typography>
+              )}
+              {hasUrl && (
+                <Button
+                  className="subscription-update-time"
+                  size="small"
+                  title={
+                    showNextUpdate
+                      ? t('profiles.components.profileItem.tooltips.showLast')
+                      : `${t('shared.labels.updateTime')}: ${updated > 0 ? dayjs(updated * 1000).format('YYYY-MM-DD HH:mm:ss') : t('profiles.components.profileItem.status.unknown')}\n${t('profiles.components.profileItem.tooltips.showNext')}`
+                  }
+                  onClick={toggleUpdateTimeDisplay}
+                >
+                  {showNextUpdate
+                    ? nextUpdateTime
+                    : updated > 0
+                      ? dayjs(updated * 1000)
+                          .locale(
+                            i18n.resolvedLanguage === 'zh' ? 'zh-cn' : 'en',
+                          )
+                          .fromNow()
+                      : t('profiles.components.profileItem.status.unknown')}
+                </Button>
+              )}
             </Box>
             {total > 0 && (
               <LinearProgress

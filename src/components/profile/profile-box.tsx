@@ -4,10 +4,11 @@ export const ProfileBox = styled(Box)(({ theme }) => ({
   position: 'relative',
   display: 'block',
   textAlign: 'left',
-  padding: '16px 0',
+  padding: '16px 12px',
   boxSizing: 'border-box',
   width: '100%',
-  borderBottom: `1px solid ${theme.palette.divider}`,
+  borderRadius: 8,
   color: theme.palette.text.secondary,
   '& h2': { color: theme.palette.text.primary },
+  '&:hover': { backgroundColor: theme.palette.action.hover },
 }))

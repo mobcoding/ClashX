@@ -1,3 +1,23 @@
+## Unreleased
+
+---
+
+## v1.1.3
+
+- Align subscription tools in one row and use a matching checkmark icon for reactivation.
+- Give subscription items distinct backgrounds, show drag handles before their names on hover, and display the last refresh time.
+- Unify system proxy and TUN controls on the overview, restore the last connection method, and keep the status light and session timer in sync.
+- Fix automatic subscription names when adding a remote subscription without a custom name.
+- Move traffic graph and core memory display options into Detailed Overview settings.
+- Keep the overview controls centered and scale them together when resizing the window.
+- Organize settings into aligned groups with common controls at the top and a single version and update section.
+
+- Simplify overview, node, subscription, and settings pages by replacing decorative dividers with spacing and hover or selection backgrounds.
+- Align subscription names, traffic details, and progress bars, and extend progress bars across the row.
+- Add consistent padding inside hover and selection backgrounds across the main pages.
+
+---
+
 ## v1.1.2
 
 - Simplify the interface with icon navigation, one-click connection, compact node and subscription lists, and basic preferences.

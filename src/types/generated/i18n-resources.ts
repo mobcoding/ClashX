@@ -269,7 +269,9 @@ export interface TranslationResources {
         detailedOverview: string
         diagnostics: string
         diagnosticsDescription: string
+        disableProxy: string
         download: string
+        enableProxy: string
         general: string
         inUse: string
         loadFailed: string
@@ -289,13 +291,17 @@ export interface TranslationResources {
         proxyDisabled: string
         proxyEnabled: string
         proxyGroup: string
+        proxyOff: string
         quotaAvailable: string
         retry: string
         running: string
         searchNodes: string
+        sessionDuration: string
         settingsDescription: string
         subscriptionDescription: string
+        systemProxyAndTun: string
         testLatency: string
+        tunMode: string
         updateAvailable: string
         updateNow: string
         upload: string
@@ -351,7 +357,6 @@ export interface TranslationResources {
             expires: string
             remaining: string
             reorder: string
-            updated: string
             usage: string
             use: string
           }
@@ -1301,6 +1306,16 @@ export interface TranslationResources {
           telegram: string
         }
         actionsGroupLabel: string
+        groups: {
+          about: string
+          appearance: string
+          appVersion: string
+          common: string
+          coreVersion: string
+          maintenance: string
+          maintenanceDescription: string
+          network: string
+        }
         title: string
       }
       sections: {

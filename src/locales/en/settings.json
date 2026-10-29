@@ -1,5 +1,15 @@
 {
   "page": {
+    "groups": {
+      "common": "Common settings",
+      "network": "Network & core",
+      "appearance": "Appearance & behavior",
+      "maintenance": "Advanced & maintenance",
+      "maintenanceDescription": "Backups, configuration, folders & diagnostics",
+      "about": "About ClashX",
+      "appVersion": "App version",
+      "coreVersion": "Core version"
+    },
     "actions": {
       "manual": "Manual",
       "telegram": "Telegram Channel",

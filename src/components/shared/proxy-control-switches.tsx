@@ -25,6 +25,7 @@ interface ProxySwitchProps {
   onError?: (err: Error) => void
   noRightPadding?: boolean
   compact?: boolean
+  settingsLayout?: boolean
 }
 
 interface SwitchRowProps {
@@ -38,6 +39,7 @@ interface SwitchRowProps {
   onToggle: (value: boolean) => Promise<boolean | void>
   onError?: (err: Error) => void
   highlight?: boolean
+  settingsLayout?: boolean
 }
 
 /**
@@ -54,6 +56,7 @@ const SwitchRow = ({
   onToggle,
   onError,
   highlight,
+  settingsLayout = false,
 }: SwitchRowProps) => {
   const theme = useTheme()
   const [checked, setChecked] = useState(active)
@@ -83,6 +86,7 @@ const SwitchRow = ({
 
   return (
     <Box
+      className={settingsLayout ? 'settings-proxy-row' : undefined}
       sx={{
         display: 'flex',
         alignItems: 'center',
@@ -90,40 +94,59 @@ const SwitchRow = ({
         p: 1,
         pr: 2,
         borderRadius: 1.5,
-        bgcolor: highlight
-          ? alpha(theme.palette.success.main, 0.07)
-          : 'transparent',
+        bgcolor:
+          highlight && !settingsLayout
+            ? alpha(theme.palette.success.main, 0.07)
+            : 'transparent',
         opacity: disabled ? 0.6 : 1,
         transition: 'background-color 0.3s',
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        {active ? (
-          <PlayCircleOutlineRounded sx={{ color: 'success.main', mr: 1 }} />
-        ) : (
-          <PauseCircleOutlineRounded sx={{ color: 'text.disabled', mr: 1 }} />
-        )}
+        {!settingsLayout &&
+          (active ? (
+            <PlayCircleOutlineRounded sx={{ color: 'success.main', mr: 1 }} />
+          ) : (
+            <PauseCircleOutlineRounded sx={{ color: 'text.disabled', mr: 1 }} />
+          ))}
         <Typography
           variant="subtitle1"
           sx={{ fontWeight: 500, fontSize: '15px' }}
         >
           {label}
         </Typography>
-        <TooltipIcon
-          title={infoTitle}
-          icon={SettingsRounded}
-          onClick={onInfoClick}
-          sx={{ ml: 1 }}
-        />
-        {extraIcons}
+        {!settingsLayout && (
+          <TooltipIcon
+            title={infoTitle}
+            icon={SettingsRounded}
+            onClick={onInfoClick}
+            sx={{ ml: 1 }}
+          />
+        )}
+        {!settingsLayout && extraIcons}
       </Box>
 
-      <Switch
-        edge="end"
-        disabled={disabled}
-        checked={checked}
-        onChange={handleChange}
-      />
+      <Box
+        className={settingsLayout ? 'settings-proxy-actions' : undefined}
+        sx={{ display: 'flex', alignItems: 'center' }}
+      >
+        {settingsLayout && (
+          <>
+            {extraIcons}
+            <TooltipIcon
+              title={infoTitle}
+              icon={SettingsRounded}
+              onClick={onInfoClick}
+            />
+          </>
+        )}
+        <Switch
+          edge="end"
+          disabled={disabled}
+          checked={checked}
+          onChange={handleChange}
+        />
+      </Box>
     </Box>
   )
 }
@@ -133,6 +156,7 @@ const ProxyControlSwitches = ({
   onError,
   noRightPadding = false,
   compact = false,
+  settingsLayout = false,
 }: ProxySwitchProps) => {
   const { t } = useTranslation()
   const { verge, mutateVerge, patchVerge } = useVerge()
@@ -182,9 +206,17 @@ const ProxyControlSwitches = ({
   const isTunMode = label === t('settings.sections.system.toggles.tunMode')
 
   return (
-    <Box sx={{ width: '100%', pr: noRightPadding ? 1 : 2 }}>
+    <Box
+      className={settingsLayout ? 'settings-proxy-control' : undefined}
+      sx={{
+        width: '100%',
+        boxSizing: 'border-box',
+        pr: noRightPadding ? 1 : 2,
+      }}
+    >
       {isSystemProxyMode && (
         <SwitchRow
+          settingsLayout={settingsLayout}
           label={t('settings.sections.proxyControl.fields.systemProxy')}
           active={systemProxyIndicator}
           infoTitle={t('settings.sections.proxyControl.tooltips.systemProxy')}
@@ -197,6 +229,7 @@ const ProxyControlSwitches = ({
 
       {isTunMode && (
         <SwitchRow
+          settingsLayout={settingsLayout}
           label={t('settings.sections.proxyControl.fields.tunMode')}
           active={(enable_tun_mode && isTunModeAvailable) || false}
           infoTitle={t('settings.sections.proxyControl.tooltips.tunMode')}

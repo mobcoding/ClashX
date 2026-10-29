@@ -3,7 +3,7 @@
     "tooltips": {
       "lightweightMode": "轻量模式",
       "manual": "使用手册",
-      "settings": "首页设置"
+      "settings": "详细概览设置"
     },
     "cards": {
       "trafficStats": "流量统计",
@@ -22,7 +22,7 @@
         "clashInfo": "Clash 信息卡",
         "systemInfo": "系统信息卡"
       },
-      "title": "首页设置"
+      "title": "详细概览设置"
     },
     "title": "首页"
   },

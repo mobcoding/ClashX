@@ -2,7 +2,6 @@ import { Paper, ThemeProvider } from '@mui/material'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
-import { useTranslation } from 'react-i18next'
 import { Outlet, useNavigate } from 'react-router'
 
 import { BaseErrorBoundary } from '@/components/base'
@@ -12,7 +11,7 @@ import { ServiceMigrationDialog } from '@/components/layout/service-migration-di
 import { SysproxyPrivilegeDialog } from '@/components/layout/sysproxy-privilege-dialog'
 import { WindowResizeHandles } from '@/components/layout/window-controller'
 import { useI18n } from '@/hooks/use-i18n'
-import { useSystemProxyState } from '@/hooks/use-system-proxy-state'
+import { useProxyControl } from '@/hooks/use-proxy-control'
 import { useVerge } from '@/hooks/use-verge'
 import { useWindowDecorations } from '@/hooks/use-window'
 import { useEventBus } from '@/services/bus'
@@ -34,18 +33,18 @@ const OS = getSystem()
 
 const Layout = () => {
   const mode = useThemeMode()
-  const { t } = useTranslation()
   const { theme } = useCustomTheme()
   const { verge } = useVerge()
   const { language } = verge ?? {}
-  const { indicator } = useSystemProxyState()
+  const proxyControl = useProxyControl()
+  const { enabled } = proxyControl
   const [proxySessionStartedAt, setProxySessionStartedAt] = useReducer(
     (_: number | null, next: number | null) => next,
     null,
   )
   useEffect(() => {
-    setProxySessionStartedAt(indicator ? performance.now() : null)
-  }, [indicator])
+    setProxySessionStartedAt(enabled ? performance.now() : null)
+  }, [enabled])
   const { switchLanguage } = useI18n()
   const navigate = useNavigate()
   const themeReady = useMemo(() => Boolean(theme), [theme])
@@ -57,12 +56,12 @@ const Layout = () => {
     (payload: [string, string]) => {
       const [status, msg] = payload
       try {
-        handleNoticeMessage(status, msg, t, navigate)
+        handleNoticeMessage(status, msg, navigate)
       } catch (error) {
         console.error('[通知处理] 失败:', error)
       }
     },
-    [t, navigate],
+    [navigate],
   )
 
   useEventBus(handleNotice)
@@ -149,7 +148,7 @@ const Layout = () => {
             <LayoutHeader />
             <div className="the-content">
               <BaseErrorBoundary>
-                <Outlet context={{ proxySessionStartedAt }} />
+                <Outlet context={{ proxySessionStartedAt, proxyControl }} />
               </BaseErrorBoundary>
             </div>
           </div>

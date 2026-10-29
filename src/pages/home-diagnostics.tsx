@@ -109,7 +109,11 @@ const HomeSettingsDialog = ({
 }: HomeSettingsDialogProps) => {
   const { t } = useTranslation()
   const [cards, setCards] = useState<HomeCardsSettings>(homeCards)
-  const { patchVerge } = useVerge()
+  const { verge, patchVerge } = useVerge()
+  const [trafficGraph, setTrafficGraph] = useState(verge?.traffic_graph ?? true)
+  const [memoryUsage, setMemoryUsage] = useState(
+    verge?.enable_memory_usage ?? true,
+  )
 
   const handleToggle = (key: string) => {
     setCards((prev: HomeCardsSettings) => ({
@@ -119,8 +123,16 @@ const HomeSettingsDialog = ({
   }
 
   const handleSave = async () => {
-    await patchVerge({ home_cards: cards })
-    onClose()
+    try {
+      await patchVerge({
+        home_cards: cards,
+        traffic_graph: trafficGraph,
+        enable_memory_usage: memoryUsage,
+      })
+      onClose()
+    } catch (error) {
+      showNotice.error(error)
+    }
   }
 
   return (
@@ -128,6 +140,24 @@ const HomeSettingsDialog = ({
       <DialogTitle>{t('home.page.settings.title')}</DialogTitle>
       <DialogContent>
         <FormGroup>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={trafficGraph}
+                onChange={(_, checked) => setTrafficGraph(checked)}
+              />
+            }
+            label={t('settings.components.verge.layout.fields.trafficGraph')}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={memoryUsage}
+                onChange={(_, checked) => setMemoryUsage(checked)}
+              />
+            }
+            label={t('settings.components.verge.layout.fields.memoryUsage')}
+          />
           <FormControlLabel
             control={
               <Checkbox

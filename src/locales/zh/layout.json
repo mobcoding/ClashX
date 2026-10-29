@@ -59,6 +59,12 @@
     }
   },
   "redesign": {
+    "systemProxyAndTun": "系统代理 + TUN",
+    "tunMode": "TUN 模式",
+    "proxyOff": "未开启",
+    "enableProxy": "开启代理接管",
+    "disableProxy": "关闭代理接管",
+    "sessionDuration": "本次接管时长",
     "uptime": "已运行 {{time}}",
     "coreRunning": "内核运行中",
     "coreStopped": "未运行",

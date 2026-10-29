@@ -68,23 +68,25 @@ export const SettingItem: React.FC<ItemProps> = ({
 }
 
 export const SettingList: React.FC<{
-  title: string
+  title?: ReactNode
   children: ReactNode
 }> = ({ title, children }) => (
   <List>
-    <ListSubheader
-      sx={[
-        { background: 'transparent', fontSize: '16px', fontWeight: '700' },
-        ({ palette }) => {
-          return {
-            color: palette.text.primary,
-          }
-        },
-      ]}
-      disableSticky
-    >
-      {title}
-    </ListSubheader>
+    {title && (
+      <ListSubheader
+        sx={[
+          { background: 'transparent', fontSize: '16px', fontWeight: '700' },
+          ({ palette }) => {
+            return {
+              color: palette.text.primary,
+            }
+          },
+        ]}
+        disableSticky
+      >
+        {title}
+      </ListSubheader>
+    )}
 
     {children}
   </List>

@@ -59,6 +59,12 @@
     }
   },
   "redesign": {
+    "systemProxyAndTun": "System proxy + TUN",
+    "tunMode": "TUN mode",
+    "proxyOff": "Off",
+    "enableProxy": "Enable proxy routing",
+    "disableProxy": "Disable proxy routing",
+    "sessionDuration": "Current session duration",
     "uptime": "Running {{time}}",
     "coreRunning": "Core running",
     "coreStopped": "Not running",

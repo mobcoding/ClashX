@@ -14,7 +14,7 @@ import {
   ContentPasteRounded,
   DeleteRounded,
   IndeterminateCheckBoxRounded,
-  LocalFireDepartmentRounded,
+  TaskAltRounded,
   MoreHorizRounded,
   RefreshRounded,
   TextSnippetOutlined,
@@ -95,7 +95,6 @@ const ProfilePage = () => {
   const location = useLocation()
   const [url, setUrl] = useState('')
   const [importOpen, setImportOpen] = useState(false)
-  const [disabled, setDisabled] = useState(false)
   const [profileDndRevision, setProfileDndRevision] = useState(0)
   const [activatings, setActivatings] = useState<string[]>([])
   const [switchTarget, setSwitchTarget] = useState<string | null>(null)
@@ -269,7 +268,6 @@ const ProfilePage = () => {
         )
       }
     } finally {
-      setDisabled(false)
       setLoading(false)
     }
   }
@@ -729,6 +727,7 @@ const ProfilePage = () => {
                 <Box className="subscription-tools-popover">
                   <IconButton
                     size="small"
+                    color="inherit"
                     title={t('profiles.page.actions.import')}
                     onClick={() => setImportOpen(!importOpen)}
                   >
@@ -764,11 +763,11 @@ const ProfilePage = () => {
 
                   <IconButton
                     size="small"
-                    color="primary"
+                    color="inherit"
                     title={t('profiles.page.actions.reactivate')}
                     onClick={() => onEnhance(true)}
                   >
-                    <LocalFireDepartmentRounded />
+                    <TaskAltRounded />
                   </IconButton>
 
                   {/* 故障检测和紧急恢复按钮 */}
@@ -861,7 +860,7 @@ const ProfilePage = () => {
                 if (event.key !== 'Enter' || event.nativeEvent.isComposing) {
                   return
                 }
-                if (!url || disabled || loading) {
+                if (!url || loading) {
                   return
                 }
                 event.preventDefault()
@@ -894,7 +893,7 @@ const ProfilePage = () => {
               }}
             />
             <Button
-              disabled={!url || disabled}
+              disabled={!url}
               loading={loading}
               variant="contained"
               size="small"
@@ -976,7 +975,7 @@ const ProfilePage = () => {
           </DragDropProvider>
           <Box sx={{ mt: 1.5, mb: '10px' }}>
             <Accordion
-              className="clashx-accordion"
+              className="clashx-accordion advanced-settings-accordion"
               disableGutters
               slotProps={{ transition: { unmountOnExit: true } }}
             >

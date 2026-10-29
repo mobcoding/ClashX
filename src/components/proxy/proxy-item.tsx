@@ -81,7 +81,6 @@ export const ProxyItem = (props: Props) => {
         disabled={unresolved}
         aria-pressed={selected}
         onClick={() => onClick?.(member)}
-        sx={{ borderColor: 'divider' }}
       >
         <NodeBadge name={name} />
         <Box

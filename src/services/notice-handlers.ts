@@ -13,7 +13,6 @@ import { hideNotice, showNotice } from '@/services/notice-service'
 import { requestService } from '@/services/service-request'
 
 type NavigateFunction = (path: string, options?: any) => void
-type TranslateFunction = (key: string) => string
 
 let shownStartupError: string | null = null
 // Reads can settle out of order; only the newest may act, and a reset counts as one.
@@ -35,7 +34,6 @@ export const forgetShownStartupError = () => {
 export const handleNoticeMessage = (
   status: string,
   msg: string,
-  t: TranslateFunction,
   navigate: NavigateFunction,
 ) => {
   const handlers: Record<NoticeStatus, () => void> = {
@@ -43,9 +41,6 @@ export const handleNoticeMessage = (
       if (msg) showNotice.info(msg)
     },
     'import_sub_url::ok': () => {
-      // 空 msg 传入，我们不希望导致 后端-前端-后端 死循环，这里只做提醒。
-      // 未来细分事件通知时，可以考虑传入订阅 ID 或其他标识符
-      // navigate("/profile", { state: { current: msg } });
       navigate('/profile')
       showNotice.success(
         'shared.feedback.notifications.importSubscriptionSuccess',

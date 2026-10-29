@@ -118,7 +118,9 @@ export function ProfileViewer({ onChange, ref }: ProfileViewerProps) {
           option.user_agent = undefined
         }
 
-        const name = form.name || `${form.type} file`
+        const name =
+          form.name?.trim() ||
+          (form.type === 'remote' ? undefined : `${form.type} file`)
         const item = {
           type: form.type,
           name,

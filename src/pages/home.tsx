@@ -6,7 +6,7 @@ import {
 } from '@mui/icons-material'
 import { Box, ButtonBase, Tooltip } from '@mui/material'
 import { useLockFn } from 'ahooks'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useOutletContext } from 'react-router'
 
@@ -14,13 +14,21 @@ import { BasePage } from '@/components/base'
 import { ClashModeCard } from '@/components/home/clash-mode-card'
 import { CurrentProxyCard } from '@/components/home/current-proxy-card'
 import { useProfiles } from '@/hooks/use-profiles'
-import { useSystemProxyState } from '@/hooks/use-system-proxy-state'
+import type { useProxyControl } from '@/hooks/use-proxy-control'
 import { useTrafficData } from '@/hooks/use-traffic-data'
 import { useVisibility } from '@/hooks/use-visibility'
 import { showNotice } from '@/services/notice-service'
 import parseTraffic from '@/utils/parse-traffic'
 
-const SessionStatus = ({ startedAt }: { startedAt: number | null }) => {
+const SessionStatus = ({
+  startedAt,
+  systemProxy,
+  tun,
+}: {
+  startedAt: number | null
+  systemProxy: boolean
+  tun: boolean
+}) => {
   const { t } = useTranslation()
   const [now, setNow] = useState(() => performance.now())
   useEffect(() => {
@@ -53,12 +61,16 @@ const SessionStatus = ({ startedAt }: { startedAt: number | null }) => {
       />
       <span>
         {t(
-          startedAt === null
-            ? 'layout.redesign.coreStopped'
-            : 'layout.redesign.running',
+          systemProxy
+            ? tun
+              ? 'layout.redesign.systemProxyAndTun'
+              : 'settings.sections.system.toggles.systemProxy'
+            : tun
+              ? 'layout.redesign.tunMode'
+              : 'layout.redesign.proxyOff',
         )}
       </span>
-      <time>{elapsed}</time>
+      <time aria-label={t('layout.redesign.sessionDuration')}>{elapsed}</time>
     </Box>
   )
 }
@@ -67,23 +79,44 @@ const HomePage = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { current } = useProfiles()
-  const { indicator, toggleSystemProxy } = useSystemProxyState()
-  const { proxySessionStartedAt } = useOutletContext<{
+  const { proxySessionStartedAt, proxyControl } = useOutletContext<{
     proxySessionStartedAt: number | null
+    proxyControl: ReturnType<typeof useProxyControl>
   }>()
-  const [toggling, setToggling] = useState(false)
+  const { enabled, systemProxy, tun, toggling } = proxyControl
+  const stageRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const stage = stageRef.current
+    if (!stage) return
+    let frame = 0
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect
+      const scale = Math.min(
+        1.75,
+        Math.max(0.75, Math.min(width / 800, height / 500)),
+        width / 400,
+        height / 320,
+      )
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => {
+        stage.style.setProperty('--connection-scale', String(scale))
+      })
+    })
+    observer.observe(stage)
+    return () => {
+      observer.disconnect()
+      cancelAnimationFrame(frame)
+    }
+  }, [])
   const visible = useVisibility()
   const {
     response: { data: traffic },
   } = useTrafficData({ enabled: visible })
   const toggle = useLockFn(async () => {
-    setToggling(true)
     try {
-      await toggleSystemProxy(!indicator)
+      await proxyControl.toggle()
     } catch (error) {
       showNotice.error(error)
-    } finally {
-      setToggling(false)
     }
   })
   const extra = current?.extra
@@ -101,39 +134,49 @@ const HomePage = () => {
   return (
     <BasePage>
       <Box className="connection-overview">
-        <Box className="connection-power-ring">
-          <Tooltip
-            title={t(
-              indicator
-                ? 'layout.redesign.proxyEnabled'
-                : 'layout.redesign.proxyDisabled',
-            )}
-          >
-            <ButtonBase
-              className="connection-power"
-              aria-label={t('settings.sections.system.toggles.systemProxy')}
-              aria-pressed={indicator}
-              disabled={toggling}
-              onClick={toggle}
-              sx={({ palette }) => ({
-                bgcolor: indicator ? 'text.primary' : 'action.selected',
-                color: indicator ? 'background.default' : 'text.secondary',
-                boxShadow: `0 6px 12px ${palette.common.black}18`,
-              })}
-            >
-              <PowerSettingsNewRounded />
-            </ButtonBase>
-          </Tooltip>
+        <Box className="connection-stage" ref={stageRef}>
+          <Box className="connection-controls">
+            <Box className="connection-power-ring">
+              <Tooltip
+                title={t(
+                  enabled
+                    ? 'layout.redesign.disableProxy'
+                    : 'layout.redesign.enableProxy',
+                )}
+              >
+                <ButtonBase
+                  className="connection-power"
+                  aria-label={t(
+                    enabled
+                      ? 'layout.redesign.disableProxy'
+                      : 'layout.redesign.enableProxy',
+                  )}
+                  aria-pressed={enabled}
+                  disabled={toggling}
+                  onClick={toggle}
+                  sx={({ palette }) => ({
+                    bgcolor: enabled ? 'text.primary' : 'action.selected',
+                    color: enabled ? 'background.default' : 'text.secondary',
+                    boxShadow: `0 6px 12px ${palette.common.black}18`,
+                  })}
+                >
+                  <PowerSettingsNewRounded />
+                </ButtonBase>
+              </Tooltip>
+            </Box>
+            <SessionStatus
+              key={proxySessionStartedAt}
+              startedAt={proxySessionStartedAt}
+              systemProxy={systemProxy}
+              tun={tun}
+            />
+            <CurrentProxyCard compact />
+            <Box className="connection-mode">
+              <ClashModeCard compact />
+            </Box>
+          </Box>
         </Box>
-        <SessionStatus
-          key={proxySessionStartedAt}
-          startedAt={proxySessionStartedAt}
-        />
-        <CurrentProxyCard compact />
-        <Box className="connection-mode">
-          <ClashModeCard compact />
-        </Box>
-        <Box className="connection-footer" sx={{ borderColor: 'divider' }}>
+        <Box className="connection-footer">
           <Box className="connection-speeds">
             {(['down', 'up'] as const).map((direction) => {
               const [value, unit] = parseTraffic(traffic?.[direction] ?? 0)

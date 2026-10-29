@@ -100,8 +100,7 @@
         "use": "使用",
         "usage": "已用 {{used}} / 共 {{total}}",
         "remaining": "剩余 {{remaining}}",
-        "expires": "到期：{{date}}",
-        "updated": "更新于 {{time}}"
+        "expires": "到期：{{date}}"
       },
       "tooltips": {
         "showLast": "点击查看上次更新时间",

@@ -3,7 +3,7 @@
     "tooltips": {
       "lightweightMode": "Lightweight Mode",
       "manual": "Manual",
-      "settings": "Home Settings"
+      "settings": "Detailed Overview Settings"
     },
     "cards": {
       "trafficStats": "Traffic Stats",
@@ -22,7 +22,7 @@
         "clashInfo": "Clash Info Cards",
         "systemInfo": "System Info Cards"
       },
-      "title": "Home Settings"
+      "title": "Detailed Overview Settings"
     },
     "title": "Home"
   },

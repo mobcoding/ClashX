@@ -1,14 +1,12 @@
-import React, { useRef } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { DialogRef, Switch, TooltipIcon } from '@/components/base'
+import { Switch } from '@/components/base'
 import ProxyControlSwitches from '@/components/shared/proxy-control-switches'
 import { useVerge } from '@/hooks/use-verge'
 
 import { GuardState } from './mods/guard-state'
 import { SettingList, SettingItem } from './mods/setting-comp'
-import { SysproxyViewer } from './mods/sysproxy-viewer'
-import { TunViewer } from './mods/tun-viewer'
 
 interface Props {
   onError?: (err: Error) => void
@@ -19,10 +17,7 @@ const SettingSystem = ({ onError }: Props) => {
 
   const { verge, mutateVerge, patchVerge } = useVerge()
 
-  const { enable_auto_launch, enable_silent_start } = verge ?? {}
-
-  const sysproxyRef = useRef<DialogRef>(null)
-  const tunRef = useRef<DialogRef>(null)
+  const { enable_auto_launch } = verge ?? {}
 
   const onSwitchFormat = (
     _e: React.ChangeEvent<HTMLInputElement>,
@@ -33,17 +28,16 @@ const SettingSystem = ({ onError }: Props) => {
   }
 
   return (
-    <SettingList title={t('settings.sections.system.title')}>
-      <SysproxyViewer ref={sysproxyRef} />
-      <TunViewer ref={tunRef} />
-
+    <SettingList>
       <ProxyControlSwitches
-        label={t('settings.sections.system.toggles.tunMode')}
+        settingsLayout
+        label={t('settings.sections.system.toggles.systemProxy')}
         onError={onError}
       />
 
       <ProxyControlSwitches
-        label={t('settings.sections.system.toggles.systemProxy')}
+        settingsLayout
+        label={t('settings.sections.system.toggles.tunMode')}
         onError={onError}
       />
 
@@ -68,27 +62,6 @@ const SettingSystem = ({ onError }: Props) => {
               return Promise.reject(error)
             }
           }}
-        >
-          <Switch edge="end" />
-        </GuardState>
-      </SettingItem>
-
-      <SettingItem
-        label={t('settings.sections.system.fields.silentStart')}
-        extra={
-          <TooltipIcon
-            title={t('settings.sections.system.tooltips.silentStart')}
-            sx={{ opacity: '0.7' }}
-          />
-        }
-      >
-        <GuardState
-          value={enable_silent_start ?? false}
-          valueProps="checked"
-          onCatch={onError}
-          onFormat={onSwitchFormat}
-          onChange={(e) => onChangeData({ enable_silent_start: e })}
-          onGuard={(e) => patchVerge({ enable_silent_start: e })}
         >
           <Switch edge="end" />
         </GuardState>
