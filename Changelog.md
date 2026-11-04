@@ -1,5 +1,9 @@
 ## Unreleased
 
+---
+
+## v1.1.5
+
 - Fix blurry overview text on macOS while keeping controls centered and responsive when resizing the window.
 - Increase overview and secondary text contrast for easier reading.
 
