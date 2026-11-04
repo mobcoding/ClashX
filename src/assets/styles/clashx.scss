@@ -24,28 +24,30 @@
 .base-page .base-container.no-padding > section .base-content { width: 100%; margin: 0; }
 .base-page--home .base-container > section .base-content { height: 100%; }
 .connection-overview { height: 100%; min-height: 0; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
-.connection-stage { flex: 1; width: 100%; min-height: 0; position: relative; }
-.connection-controls { position: absolute; top: 50%; left: 50%; width: 400px; height: 320px; display: flex; flex-direction: column; align-items: center; justify-content: center; transform: translate(-50%, -50%) scale(var(--connection-scale, 1)); transform-origin: center; }
-.connection-power-ring { width: 132px; height: 132px; border: 1px solid var(--divider-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
-.connection-power.MuiButtonBase-root { width: 112px; height: 112px; border-radius: 50%; transition: opacity .15s; }
+.connection-stage { flex: 1; width: 100%; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.connection-controls { width: calc(400px * var(--connection-scale, 1)); height: calc(320px * var(--connection-scale, 1)); flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.connection-power-ring { width: calc(132px * var(--connection-scale, 1)); height: calc(132px * var(--connection-scale, 1)); border: 1px solid var(--divider-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: calc(16px * var(--connection-scale, 1)); flex-shrink: 0; }
+.connection-power.MuiButtonBase-root { width: calc(112px * var(--connection-scale, 1)); height: calc(112px * var(--connection-scale, 1)); border-radius: 50%; transition: opacity .15s; }
 .connection-power:hover { opacity: .85; }
 .connection-power.Mui-disabled { opacity: .5; }
-.connection-power .MuiSvgIcon-root { font-size: 38px; }
-.connection-runtime { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; line-height: 20px; }
+.connection-power .MuiSvgIcon-root { font-size: calc(38px * var(--connection-scale, 1)); }
+.connection-runtime { display: flex; align-items: center; justify-content: center; gap: calc(8px * var(--connection-scale, 1)); font-size: calc(12px * var(--connection-scale, 1)); line-height: calc(20px * var(--connection-scale, 1)); }
 .connection-runtime time { font-variant-numeric: tabular-nums; }
-.core-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.core-status-dot--running { animation: core-status-breathe 1s ease-in-out infinite; }
-@keyframes core-status-breathe { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 currentColor; } 50% { opacity: .35; box-shadow: 0 0 0 3px transparent; } }
-.connection-node.MuiButton-root { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; width: 320px; max-width: 100%; margin: 21px auto 12px; padding: 12px; font-weight: 400; }
-.connection-node-left { display: flex; align-items: center; gap: 8px; min-width: 0; text-align: left; }
+.core-status-dot { position: relative; width: calc(7px * var(--connection-scale, 1)); height: calc(7px * var(--connection-scale, 1)); border-radius: 50%; flex-shrink: 0; }
+.core-status-dot--running::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: inherit; animation: core-status-breathe 1s ease-in-out infinite; }
+@keyframes core-status-breathe { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 currentColor; } 50% { opacity: 0; box-shadow: 0 0 0 calc(3px * var(--connection-scale, 1)) currentColor; } }
+.connection-node.MuiButton-root { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: calc(16px * var(--connection-scale, 1)); width: calc(320px * var(--connection-scale, 1)); max-width: 100%; margin: calc(21px * var(--connection-scale, 1)) auto calc(12px * var(--connection-scale, 1)); padding: calc(12px * var(--connection-scale, 1)); font-weight: 400; }
+.connection-node-left { display: flex; align-items: center; gap: calc(8px * var(--connection-scale, 1)); min-width: 0; text-align: left; }
 .node-badge { font-size: 10px; min-width: 27px; padding: 3px 5px; border: 1px solid; border-radius: 4px; letter-spacing: .3px; flex-shrink: 0; text-align: center; box-sizing: border-box; }
-.connection-node-name.MuiTypography-root { min-width: 0; font-size: 13px; }
-.connection-node-delay { flex-shrink: 0; font-size: 11px; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.connection-node-change { display: flex; align-items: center; white-space: nowrap; color: var(--text-secondary); font-size: 11px; }
-.connection-mode { width: 320px; max-width: 100%; }
+.connection-node .node-badge { font-size: calc(10px * var(--connection-scale, 1)); min-width: calc(27px * var(--connection-scale, 1)); padding: calc(3px * var(--connection-scale, 1)) calc(5px * var(--connection-scale, 1)); }
+.connection-node-name.MuiTypography-root { min-width: 0; font-size: calc(13px * var(--connection-scale, 1)); }
+.connection-node-delay { flex-shrink: 0; font-size: calc(11px * var(--connection-scale, 1)); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.connection-node-change { display: flex; align-items: center; white-space: nowrap; color: var(--text-secondary); font-size: calc(11px * var(--connection-scale, 1)); }
+.connection-mode { width: calc(320px * var(--connection-scale, 1)); max-width: 100%; }
 .minimal-segments.MuiButtonGroup-root { border: 0; background: var(--divider-color); padding: 3px; border-radius: 8px; box-shadow: none; }
-.connection-mode .minimal-segments { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); box-sizing: border-box; }
+.connection-mode .minimal-segments { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); box-sizing: border-box; padding: calc(3px * var(--connection-scale, 1)); }
 .minimal-segments.MuiButtonGroup-root .MuiButton-root { border: 0; border-radius: 6px; color: var(--text-secondary); font-size: 12px; padding: 6px 15px; white-space: nowrap; min-width: 0; }
+.connection-mode .minimal-segments.MuiButtonGroup-root .MuiButton-root { font-size: calc(12px * var(--connection-scale, 1)); padding: calc(6px * var(--connection-scale, 1)) calc(15px * var(--connection-scale, 1)); }
 .minimal-segments.MuiButtonGroup-root [aria-pressed=true] { color: var(--text-primary); background: var(--background-color); box-shadow: 0 1px 3px #00000012; }
 .connection-footer { width: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: center; flex-shrink: 0; padding-top: 12px; }
 .connection-speeds { display: flex; gap: 16px; white-space: nowrap; }
@@ -176,4 +178,4 @@
   .subscription-actions { gap: 0; }
   .basic-preferences > .MuiListItem-root { flex-wrap: wrap; }
 }
-@media (prefers-reduced-motion: reduce) { .core-status-dot--running { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .core-status-dot--running::after { animation: none; } }

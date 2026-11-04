@@ -46,7 +46,7 @@ const SessionStatus = ({
     .map((value) => String(value).padStart(2, '0'))
     .join(':')
   return (
-    <Box className="connection-runtime" sx={{ color: 'text.secondary' }}>
+    <Box className="connection-runtime" sx={{ color: 'text.primary' }}>
       <Box
         component="span"
         className={
