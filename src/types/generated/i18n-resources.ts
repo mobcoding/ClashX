@@ -66,6 +66,8 @@ export interface TranslationResources {
         }
         currentProxy: {
           actions: {
+            noMeasuredNodes: string
+            refreshAndSelect: string
             refreshDelay: string
           }
           labels: {

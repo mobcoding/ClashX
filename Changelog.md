@@ -1,5 +1,7 @@
 ## Unreleased
 
+- Add an overview shortcut to test latency and select the fastest available node.
+
 ---
 
 ## v1.1.5

@@ -91,7 +91,9 @@
     "currentProxy": {
       "title": "Current Node",
       "actions": {
-        "refreshDelay": "Delay check"
+        "refreshDelay": "Delay check",
+        "refreshAndSelect": "Test latency and select the fastest node",
+        "noMeasuredNodes": "No valid latency results; no node was selected"
       },
       "labels": {
         "globalMode": "Global Mode",

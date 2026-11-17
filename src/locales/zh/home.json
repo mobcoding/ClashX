@@ -91,7 +91,9 @@
     "currentProxy": {
       "title": "当前节点",
       "actions": {
-        "refreshDelay": "延迟测试"
+        "refreshDelay": "延迟测试",
+        "refreshAndSelect": "测速并自动选择最快节点",
+        "noMeasuredNodes": "没有测得有效延迟，未执行节点切换"
       },
       "labels": {
         "globalMode": "全局模式",

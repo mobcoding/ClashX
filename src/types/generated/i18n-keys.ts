@@ -78,6 +78,8 @@ export const translationKeys = [
   'home.components.ipInfo.errors.noServices',
   'home.components.currentProxy.title',
   'home.components.currentProxy.actions.refreshDelay',
+  'home.components.currentProxy.actions.refreshAndSelect',
+  'home.components.currentProxy.actions.noMeasuredNodes',
   'home.components.currentProxy.labels.globalMode',
   'home.components.currentProxy.labels.directMode',
   'home.components.currentProxy.labels.group',

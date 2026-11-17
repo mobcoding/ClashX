@@ -4,6 +4,7 @@ import {
   ArrowDropDown,
   ChevronRight,
   NetworkCheckRounded,
+  RefreshRounded,
   WifiOff as SignalError,
   SignalWifi3Bar as SignalGood,
   SignalWifi2Bar as SignalMedium,
@@ -41,6 +42,7 @@ import type { ProxySortType } from '@/components/proxy/use-filter-sort'
 import { useGroupDelays } from '@/hooks/use-group-delays'
 import { useProfiles } from '@/hooks/use-profiles'
 import { useProxySelection } from '@/hooks/use-proxy-selection'
+import { useForgetSelection } from '@/hooks/use-record-selection'
 import { useVerge } from '@/hooks/use-verge'
 import {
   useAppRefreshers,
@@ -51,6 +53,7 @@ import {
 import { syncTrayProxySelection } from '@/services/cmds'
 import delayManager from '@/services/delay'
 import { mutate } from '@/services/mutate'
+import { showNotice } from '@/services/notice-service'
 import { profileTestUrls } from '@/services/proxy-test-url'
 import {
   findCurrentGroupMember,
@@ -62,7 +65,11 @@ import {
   type ResolvedProxyMember,
 } from '@/types/proxy-view'
 import { debugLog } from '@/utils/debug'
-import { compareByDelay, DEFAULT_DELAY_TIMEOUT } from '@/utils/delay'
+import {
+  classifyDelay,
+  compareByDelay,
+  DEFAULT_DELAY_TIMEOUT,
+} from '@/utils/delay'
 
 const STORAGE_KEY_GROUP = 'clash-verge-selected-proxy-group'
 const STORAGE_KEY_SORT_TYPE = 'clash-verge-proxy-sort-type'
@@ -693,9 +700,11 @@ export const CurrentProxyCard = ({
       customUrl?.trim() ||
         selectedGroup.testUrl?.trim() ||
         verge?.default_latency_test?.trim() ||
-        'http://cp.cloudflare.com/generate_204',
+        (compact
+          ? 'https://www.gstatic.com/generate_204'
+          : 'http://cp.cloudflare.com/generate_204'),
     )
-  }, [selectedGroup, currentProfile, verge?.default_latency_test])
+  }, [selectedGroup, currentProfile, verge?.default_latency_test, compact])
 
   const unsortedProxyOptions = useMemo(
     () => optionsForGroup(selectedGroup),
@@ -802,6 +811,61 @@ export const CurrentProxyCard = ({
   const goToProxies = useCallback(() => {
     navigate(`/proxies?group=${encodeURIComponent(selectedGroupName)}`)
   }, [navigate, selectedGroupName])
+
+  const forgetSelection = useForgetSelection()
+  const [testingFastest, setTestingFastest] = useState(false)
+  const selectionContextRef = useRef(0)
+  useEffect(() => {
+    return () => {
+      selectionContextRef.current += 1
+    }
+  }, [currentProfileId, selectedGroupName, mode])
+
+  const refreshAndSelectFastest = useLockFn(async () => {
+    if (!selectedGroup || isDirectMode || isCoreDataPending) return
+    const context = selectionContextRef.current
+    const group = selectedGroup
+    const timeout = verge?.default_latency_timeout || DEFAULT_DELAY_TIMEOUT
+    const members = unsortedProxyOptions
+      .map(({ member }) => member)
+      .filter(isInteractableMember)
+      .filter(({ ref }) => ref.name !== 'DIRECT' && ref.name !== 'REJECT')
+    if (!members.length) return
+    setTestingFastest(true)
+    try {
+      await delayManager.checkGroupDelay(members, group, timeout)
+      // A completed test must not change a different profile, group, or mode.
+      if (context !== selectionContextRef.current) return
+      const fastest = members
+        .map((member) => ({
+          member,
+          delay: delayManager.getDelayFix(member, group.name),
+        }))
+        .filter(({ delay }) => classifyDelay(delay, timeout) === 'measured')
+        .sort((a, b) => a.delay - b.delay)[0]
+      if (!fastest) {
+        showNotice.warning(
+          'home.components.currentProxy.actions.noMeasuredNodes',
+        )
+        return
+      }
+      if (group.type === 'URLTest') {
+        await forgetSelection(group.name)
+      } else if (fastest.member.ref.name !== group.now) {
+        handleSelectChange(
+          group.name,
+          group.now ?? undefined,
+        )({
+          target: { value: fastest.member.ref.name },
+        })
+      }
+      await refreshProxy()
+    } catch (error) {
+      showNotice.error(error)
+    } finally {
+      setTestingFastest(false)
+    }
+  })
 
   const currentMember = currentOption?.member
   const currentProxy = currentMember ? memberDetails(currentMember) : undefined
@@ -983,55 +1047,89 @@ export const CurrentProxyCard = ({
 
   if (compact)
     return (
-      <Button
-        className="connection-node"
-        onClick={goToProxies}
-        color="inherit"
-        aria-label={t('layout.redesign.chooseNode')}
-      >
-        <Box className="connection-node-left">
-          <NodeBadge name={currentProxy?.name ?? selectedGroup?.now ?? ''} />
-          <Typography
-            className="connection-node-name"
-            component="span"
-            title={currentProxy?.name ?? selectedGroup?.now ?? ''}
-            noWrap
-          >
-            {isCoreDataPending
-              ? t('layout.redesign.loading')
-              : (currentProxy?.name ??
-                selectedGroup?.now ??
-                t('home.components.currentProxy.status.noProxyNode'))}
-          </Typography>
-          {!isDirectMode && currentMember && (
-            <Box
+      <Box className="connection-node">
+        <Button
+          className="connection-node-details"
+          onClick={goToProxies}
+          color="inherit"
+          aria-label={t('layout.redesign.chooseNode')}
+        >
+          <Box className="connection-node-left">
+            <NodeBadge name={currentProxy?.name ?? selectedGroup?.now ?? ''} />
+            <Typography
+              className="connection-node-name"
               component="span"
-              className="connection-node-delay"
-              sx={{
-                color:
-                  delayManager.formatDelayColor(
-                    currentDelay,
-                    verge?.default_latency_timeout || DEFAULT_DELAY_TIMEOUT,
-                  ) || 'text.secondary',
-              }}
+              title={currentProxy?.name ?? selectedGroup?.now ?? ''}
+              noWrap
             >
-              {delayManager.formatDelay(
-                currentDelay,
-                verge?.default_latency_timeout || DEFAULT_DELAY_TIMEOUT,
+              {isCoreDataPending
+                ? t('layout.redesign.loading')
+                : (currentProxy?.name ??
+                  selectedGroup?.now ??
+                  t('home.components.currentProxy.status.noProxyNode'))}
+            </Typography>
+            {!isDirectMode && currentMember && (
+              <Box
+                component="span"
+                className="connection-node-delay"
+                sx={{
+                  color:
+                    delayManager.formatDelayColor(
+                      currentDelay,
+                      verge?.default_latency_timeout || DEFAULT_DELAY_TIMEOUT,
+                    ) || 'text.secondary',
+                }}
+              >
+                {delayManager.formatDelay(
+                  currentDelay,
+                  verge?.default_latency_timeout || DEFAULT_DELAY_TIMEOUT,
+                )}
+                {currentDelay > 0 &&
+                currentDelay <
+                  (verge?.default_latency_timeout || DEFAULT_DELAY_TIMEOUT)
+                  ? ' ms'
+                  : ''}
+              </Box>
+            )}
+          </Box>
+        </Button>
+        <Tooltip
+          title={t('home.components.currentProxy.actions.refreshAndSelect')}
+        >
+          <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton
+              className="connection-node-refresh"
+              aria-label={t(
+                'home.components.currentProxy.actions.refreshAndSelect',
               )}
-              {currentDelay > 0 &&
-              currentDelay <
-                (verge?.default_latency_timeout || DEFAULT_DELAY_TIMEOUT)
-                ? ' ms'
-                : ''}
-            </Box>
-          )}
-        </Box>
-        <Box component="span" className="connection-node-change">
-          {t('layout.redesign.changeNode')}
-          <ChevronRight fontSize="inherit" />
-        </Box>
-      </Button>
+              onClick={refreshAndSelectFastest}
+              loading={testingFastest}
+              disabled={
+                isDirectMode ||
+                isCoreDataPending ||
+                !unsortedProxyOptions.some(
+                  ({ member }) =>
+                    isInteractableMember(member) &&
+                    member.ref.name !== 'DIRECT' &&
+                    member.ref.name !== 'REJECT',
+                )
+              }
+            >
+              <RefreshRounded />
+            </IconButton>
+          </Box>
+        </Tooltip>
+        <Button
+          className="connection-node-change"
+          color="inherit"
+          onClick={goToProxies}
+        >
+          <Box component="span" className="connection-node-change">
+            {t('layout.redesign.changeNode')}
+            <ChevronRight fontSize="inherit" />
+          </Box>
+        </Button>
+      </Box>
     )
 
   return (
